@@ -49,7 +49,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     suspend fun fetchUtxos(): Int {
         val address = getTransparentAddress()
         val height: Int = lockBox[Const.Backup.BIRTHDAY_HEIGHT] ?: synchronizer.network.saplingActivationHeight
-        return synchronizer.refreshUtxos(address, height)
+        return synchronizer.refreshUtxos(address, height) ?: 0
     }
 
     suspend fun getTransparentBalance(): WalletBalance {
