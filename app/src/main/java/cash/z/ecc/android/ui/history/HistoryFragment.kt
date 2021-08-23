@@ -86,13 +86,19 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
         }
     }
 
-    private fun onTransactionsUpdated(transactions: PagedList<ConfirmedTransaction>) {
+    private fun onTransactionsUpdated(transactions: List<ConfirmedTransaction>) {
         twig("HistoryFragment.onTransactionsUpdated")
         transactions.size.let { newCount ->
             twig("got a new paged list of transactions of length $newCount")
             binding.groupEmptyViews.goneIf(newCount > 0)
-            val preSize = transactionAdapter.itemCount
-            transactionAdapter.submitList(transactions)
+
+            // tricky: we handle two types of lists, empty and PagedLists. It's not easy to construct an empty PagedList so the SDK currently returns an emptyList() but that will not cast to a PagedList
+            if (newCount == 0) {
+                transactionAdapter.submitList(null)
+            } else {
+                // tricky: for now, explicitly fail (cast exception) if the transactions are not in a PagedList. Otherwise, this would silently fail to show items and be hard to debug if we're ever passed a non-empty list that isn't an instance of PagedList. This awkwardness will go away when we switch to Paging3
+                transactionAdapter.submitList(transactions as PagedList<ConfirmedTransaction>)
+            }
         }
     }
 
