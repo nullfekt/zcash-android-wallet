@@ -3,7 +3,7 @@ import cash.z.ecc.android.Deps
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.0.1'
