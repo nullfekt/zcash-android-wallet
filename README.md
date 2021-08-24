@@ -64,5 +64,3 @@ Contributions are very much welcomed! Please read our [Contributing Guidelines](
 If you wish to report a security issue, please follow our [Responsible Disclosure guidelines](https://github.com/zcash/zcash-android-wallet-sdk/blob/master/responsible_disclosure.md).
 
  For other kind of inquiries, feel welcome to open an Issue if you encounter a bug or would like to request a feature.
-# License
-MIT
