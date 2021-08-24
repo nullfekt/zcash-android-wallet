@@ -10,17 +10,11 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${Deps.kotlinVersion}"
         classpath 'com.bugsnag:bugsnag-android-gradle-plugin:4.7.5'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${Deps.navigationVersion}"
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.36.0"
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-        maven { url 'https://jitpack.io' }
-    }
+plugins {
+    id("com.github.ben-manes.versions")
 }
 
 task clean(type: Delete) {
