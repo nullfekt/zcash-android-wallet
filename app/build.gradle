@@ -79,7 +79,7 @@ android {
         }
     }
     compileOptions {
-        // emable support for new langauge APIs but also fix the issue with zxing on API < 24
+        // enable support for new language APIs but also fix the issue with zxing on API < 24
         coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
