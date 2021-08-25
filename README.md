@@ -1,5 +1,5 @@
 # zcash-android-wallet
-An Android wallet using the Zcash Android SDK that is maintained by ECC developers.
+A sample Android wallet using the [Zcash Android SDK](https://github.com/zcash/zcash-android-wallet-sdk).
 
 ### Motivation
 [Dogfooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food) - _transitive verb_ -  is the practice of an organization using its own product. This app was created to help us learn. 
@@ -19,10 +19,7 @@ for more information about the security and privacy limitations of the wallet.
 If you'd like to sign up to help us test, reach out on discord and let us know! We're always happy to get feedback!
 
 # Description
-
-ECC Wallet is developed using the Zcash iOS SDK that is maintained by core developers.
-
-This a reference wallet for the following set of features:
+This a sample wallet for the following set of features:
 - z2z transactions w/ encrypted memos
 - reply-to formatted memos
 - z2t transactions
@@ -34,15 +31,13 @@ note: z means sapling shielded addresses.
 # Prerequisites
 - [The code](https://github.com/zcash/zcash-android-wallet)
 - [Android Studio](https://developer.android.com/studio/index.html) or [adb](https://www.xda-developers.com/what-is-adb/)
-- A device or emulator
+- An Android device or emulator
 
 # Building the App
-
 To run, clone the repo, open it in Android Studio and press play. It should just work.™
 
-
 ## Install from Android Studio
-1. [Install Android studio](https://developer.android.com/studio/install) and setup an emulator    
+1. [Install Android Studio](https://developer.android.com/studio/install) and setup an emulator
     1a. If using a device, be sure to [put it in developer mode](https://developer.android.com/studio/debug/dev-options) to enable side-loading apps
 2. `Import` the zcash-android-wallet folder.  
     It will be recognized as an Android project.
@@ -54,6 +49,9 @@ To build from the command line, [setup ADB](https://www.xda-developers.com/insta
 cd /path/to/zcash-android-wallet
 ./gradlew
 ```
+Note: The lack of an explicit Gradle task is not a typo. A default task is configured via [build.gradle](build.gradle).
+
+Tip: On macOS and Linux, Gradle is invoked with `./gradlew`.  On Windows, Gradle is invoked with `gradlew`.
 
 # Contributing
 
@@ -63,6 +61,4 @@ Contributions are very much welcomed! Please read our [Contributing Guidelines](
 
 If you wish to report a security issue, please follow our [Responsible Disclosure guidelines](https://github.com/zcash/zcash-android-wallet-sdk/blob/master/responsible_disclosure.md).
 
- For other kind of inquiries, feel welcome to open an Issue if you encounter a bug or would like to request a feature.
-# License
-MIT
+For other kind of inquiries, feel welcome to open an Issue if you encounter a bug or would like to request a feature.

@@ -3,24 +3,18 @@ import cash.z.ecc.android.Deps
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-beta04'
+        classpath 'com.android.tools.build:gradle:7.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${Deps.kotlinVersion}"
         classpath 'com.bugsnag:bugsnag-android-gradle-plugin:4.7.5'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${Deps.navigationVersion}"
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.36.0"
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-        maven { url 'https://jitpack.io' }
-    }
+plugins {
+    id("com.github.ben-manes.versions")
 }
 
 task clean(type: Delete) {
