@@ -2,7 +2,6 @@ package cash.z.ecc.android
 
 import android.app.Application
 import android.content.Context
-import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import cash.z.ecc.android.di.component.AppComponent
@@ -43,12 +42,32 @@ class ZcashWalletApp : Application(), CameraXConfig.Provider {
      */
     private var feedbackScope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    override fun onCreate() {
-        Thread.setDefaultUncaughtExceptionHandler(ExceptionReporter(Thread.getDefaultUncaughtExceptionHandler()))
-        creationTime = System.currentTimeMillis()
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+
+        // Setting a global reference to the application object is icky; we should try to refactor
+        // this away if possible.  Doing this in attachBaseContext instead of onCreate()
+        // to avoid any lifecycle issues, as certain components can run before Application.onCreate()
+        // (like ContentProvider initialization), but attachBaseContext will still run before that.
         instance = this
-        // Setup handler for uncaught exceptions.
+    }
+
+    override fun onCreate() {
         super.onCreate()
+
+        // Register this before the uncaught exception handler, because we want to make sure the
+        // exception handler also doesn't do disk IO.  Since StrictMode only applies for debug builds,
+        // we'll also see the crashes during development right away and won't miss them if they aren't
+        // reported by the crash reporting.
+        if (BuildConfig.DEBUG) {
+            StrictModeHelper.enableStrictMode()
+        }
+
+        // Setup handler for uncaught exceptions.
+        Thread.getDefaultUncaughtExceptionHandler()?.let {
+            Thread.setDefaultUncaughtExceptionHandler(ExceptionReporter(it))
+        }
+        creationTime = System.currentTimeMillis()
 
         defaultNetwork = ZcashNetwork.from(resources.getInteger(R.integer.zcash_network_id))
         component = DaggerAppComponent.factory().create(this)
@@ -56,11 +75,6 @@ class ZcashWalletApp : Application(), CameraXConfig.Provider {
         feedbackScope.launch {
             coordinator.feedback.start()
         }
-    }
-
-    override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(base)
-//        MultiDex.install(this)
     }
 
     override fun getCameraXConfig(): CameraXConfig {
@@ -107,11 +121,4 @@ class ZcashWalletApp : Application(), CameraXConfig.Provider {
             }
         }
     }
-}
-
-fun ZcashWalletApp.isEmulator(): Boolean {
-    val goldfish = Build.HARDWARE.contains("goldfish")
-    val emu = (System.getProperty("ro.kernel.qemu", "")?.length ?: 0) > 0
-    val sdk = Build.MODEL.toLowerCase().contains("sdk")
-    return goldfish || emu || sdk
 }
