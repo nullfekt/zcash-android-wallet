@@ -6,7 +6,7 @@ object Deps {
     const val kotlinVersion =       "1.5.10"
     const val navigationVersion =   "2.3.5"
 
-    const val compileSdkVersion =   30
+    const val compileSdkVersion =   31
     const val buildToolsVersion =   "30.0.3"
     const val minSdkVersion =       21
     const val targetSdkVersion =    30
@@ -20,8 +20,8 @@ object Deps {
         const val APPCOMPAT =               "androidx.appcompat:appcompat:1.4.0-alpha02"
         const val BIOMETRICS =              "androidx.biometric:biometric:1.2.0-alpha03"
         const val CONSTRAINT_LAYOUT =       "androidx.constraintlayout:constraintlayout:2.1.0-beta02"
-        const val CORE_KTX =                "androidx.core:core-ktx:1.6.0-rc01"
-        const val FRAGMENT_KTX =            "androidx.fragment:fragment-ktx:1.3.3"
+        const val CORE_KTX =                "androidx.core:core-ktx:1.6.0"
+        const val FRAGMENT_KTX =            "androidx.fragment:fragment-ktx:1.3.6"
         const val LEGACY =                  "androidx.legacy:legacy-support-v4:1.0.0"
         const val MULTIDEX =                "androidx.multidex:multidex:2.0.1"
         const val PAGING =                  "androidx.paging:paging-runtime-ktx:2.1.2"
@@ -30,7 +30,7 @@ object Deps {
             val CAMERA2 =                   "androidx.camera:camera-camera2:$version"
             val CORE =                      "androidx.camera:camera-core:$version"
             val LIFECYCLE =                 "androidx.camera:camera-lifecycle:$version"
-            object View :       Version("1.0.0-alpha25") {
+            object View :       Version("1.0.0-alpha27") {
                 val EXT =                   "androidx.camera:camera-extensions:$version"
                 val VIEW =                  "androidx.camera:camera-view:$version"
             }
@@ -74,6 +74,7 @@ object Deps {
     }
     object Kotlin :             Version(kotlinVersion) {
         val STDLIB =                         "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$version"
+        val REFLECT =                        "org.jetbrains.kotlin:kotlin-reflect:$version"
         object Coroutines :     Version("1.4.2") {
             val ANDROID =                    "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
             val CORE =                       "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
@@ -96,10 +97,16 @@ object Deps {
 
     object Test {
         const val JUNIT =                    "junit:junit:4.13.2"
-        const val MOKITO =                   "org.mockito:mockito-android:3.11.1"
+        const val MOKITO =                   "org.mockito:mockito-android:3.12.4"
         const val MOKITO_KOTLIN =            "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
         object Android {
-            const val JUNIT =                "androidx.test.ext:junit:1.1.3-alpha06"
+            const val CORE =                 "androidx.test:core:1.4.0"
+            const val RULES =                "androidx.test:rules:1.4.0"
+            const val JUNIT =                "androidx.test.ext:junit:1.1.3"
+            const val FRAGMENT =             "androidx.fragment:fragment-testing:1.4.0-alpha08"
+            const val ESPRESSO =             "androidx.test.espresso:espresso-core:3.4.0"
+            const val ESPRESSO_INTENTS =     "androidx.test.espresso:espresso-intents:3.4.0"
+            const val NAVIGATION =           "androidx.navigation:navigation-testing:2.3.0-alpha01"
         }
     }
 }

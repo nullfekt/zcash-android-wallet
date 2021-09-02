@@ -87,7 +87,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.main_activity) {
 
     @Inject
     lateinit var mainViewModel: MainViewModel
@@ -141,7 +141,6 @@ class MainActivity : AppCompatActivity() {
         }
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.main_activity)
         initNavigation()
         initLoadScreen()
 
@@ -653,6 +652,7 @@ class MainActivity : AppCompatActivity() {
 
         dialogViewBinding.dialogMessage.setText(msgResId)
         if (dialog != null) dialog?.dismiss()
+        // TODO: This should be moved to a DialogFragment, otherwise unmanaged dialogs go away during Activity configuration changes
         dialog = MaterialAlertDialogBuilder(this)
             .setTitle(titleResId)
             .setView(dialogViewBinding.root)

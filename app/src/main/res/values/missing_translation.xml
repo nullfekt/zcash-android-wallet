@@ -38,6 +38,11 @@
     <string name="missing_home_dialog_no_balance_message">To make full use of this wallet, deposit funds to your address.</string>
     <string name="missing_home_instruction_fund_now">Fund Now</string>
 
+    <string name="missing_autoshielding_title_text">We now <b>shield by default</b>. This is to ensure maximum privacy.</string>
+    <string name="missing_autoshielding_body_text"><b>Autoshielding</b> means any funds coming into your transparent address will automatically be moved to your shielded wallet.\n\nWe’ll always update you on the latest privacy-preserving best practices and recommendations.</string>
+    <string name="missing_autoshielding_button_positive">Great!</string>
+    <string name="missing_autoshielding_button_neutral">Tell me more</string>
+
     <!-- Screen: Landing -->
     <string name="missing_landing_backup_skipped_message_1">Are you sure? Without a backup, funds can be lost FOREVER!</string>
     <string name="missing_landing_backup_skipped_message_2">You can\'t backup later. You\'re probably going to lose your funds!</string>

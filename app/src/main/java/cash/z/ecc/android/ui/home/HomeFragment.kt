@@ -20,6 +20,7 @@ import cash.z.ecc.android.ext.disabledIf
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.ext.invisibleIf
 import cash.z.ecc.android.ext.onClickNavTo
+import cash.z.ecc.android.ext.requireApplicationContext
 import cash.z.ecc.android.ext.showSharedLibraryCriticalError
 import cash.z.ecc.android.ext.toAppColor
 import cash.z.ecc.android.ext.toColoredSpan
@@ -32,6 +33,8 @@ import cash.z.ecc.android.feedback.Report.Tap.HOME_HISTORY
 import cash.z.ecc.android.feedback.Report.Tap.HOME_PROFILE
 import cash.z.ecc.android.feedback.Report.Tap.HOME_RECEIVE
 import cash.z.ecc.android.feedback.Report.Tap.HOME_SEND
+import cash.z.ecc.android.preference.Preferences
+import cash.z.ecc.android.preference.model.get
 import cash.z.ecc.android.sdk.Synchronizer.Status.DISCONNECTED
 import cash.z.ecc.android.sdk.Synchronizer.Status.STOPPED
 import cash.z.ecc.android.sdk.Synchronizer.Status.SYNCED
@@ -178,7 +181,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     private fun onSyncReady() {
         twig("Sync ready! Monitoring synchronizer state...")
         monitorUiModelChanges()
-        maybeInterruptUser()
+
+        if (!Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())) {
+            mainActivity?.safeNavigate(R.id.action_nav_home_to_autoshielding_info)
+        } else {
+            maybeInterruptUser()
+        }
 
         twig("HomeFragment.onSyncReady COMPLETE")
     }

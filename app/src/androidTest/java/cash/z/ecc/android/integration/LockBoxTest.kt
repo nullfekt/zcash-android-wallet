@@ -1,10 +1,12 @@
 package cash.z.ecc.android.integration
 
 import android.content.Context
+import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import cash.z.ecc.android.lockbox.LockBox
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 class LockBoxTest {
@@ -22,6 +24,8 @@ class LockBoxTest {
     }
 
     @Test
+    @LargeTest
+    @Ignore("This test is extremely slow")
     fun testLongString() {
         var successCount = 0
         repeat(iterations) {
@@ -36,6 +40,8 @@ class LockBoxTest {
     }
 
     @Test
+    @LargeTest
+    @Ignore("This test is extremely slow")
     fun testShortString() {
         var successCount = 0
         repeat(iterations) {
@@ -50,6 +56,8 @@ class LockBoxTest {
     }
 
     @Test
+    @LargeTest
+    @Ignore("This test is extremely slow")
     fun testGiantString() {
         var successCount = 0
         repeat(iterations) {

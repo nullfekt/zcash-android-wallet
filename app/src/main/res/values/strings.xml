@@ -56,6 +56,12 @@
     <string name="home_no_balance">@string/translated_balance_nofunds</string>
     <string name="home_title">@string/translated_balance_amounttosend</string>
 
+    <!-- Screen: Autoshielding prompt -->
+    <string name="autoshielding_title_text">@string/missing_autoshielding_title_text</string>
+    <string name="autoshielding_body_text">@string/missing_autoshielding_body_text</string>
+    <string name="autoshielding_button_positive">@string/missing_autoshielding_button_positive</string>
+    <string name="autoshielding_button_neutral">@string/missing_autoshielding_button_neutral</string>
+
     <!-- Screen: Balance Detail -->
     <string name="balance_detail_button_send_transparent_funds" tools:ignore="MissingTranslation">Shield Transparent Funds</string>
     <string name="balance_detail_text_total_title" tools:ignore="MissingTranslation">= TOTAL</string>
