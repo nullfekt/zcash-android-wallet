@@ -3,11 +3,6 @@ import cash.z.ecc.android.Deps
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-repositories {
-    google()
-    mavenCentral()
-}
-
 android {
     compileSdkVersion Deps.compileSdkVersion
     buildToolsVersion Deps.buildToolsVersion
