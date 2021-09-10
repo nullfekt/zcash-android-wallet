@@ -26,8 +26,8 @@ import org.junit.runner.RunWith
 class AutoshieldingInformationFragmentTest : UiTestPrerequisites() {
     @Test
     @MediumTest
-    fun dismiss_returns_home() {
-        val fragmentNavigationScenario = newScenario()
+    fun dismiss_returns_home_when_autoshield_not_available() {
+        val fragmentNavigationScenario = newScenario(isAutoshieldAvailable = false)
 
         onView(withId(cash.z.ecc.android.R.id.button_autoshield_dismiss)).also {
             it.perform(ViewActions.click())
@@ -41,23 +41,23 @@ class AutoshieldingInformationFragmentTest : UiTestPrerequisites() {
 
     @Test
     @MediumTest
-    fun dismiss_sets_preference() {
-        newScenario()
+    fun dismiss_starts_autoshield_when_autoshield_available() {
+        val fragmentNavigationScenario = newScenario(isAutoshieldAvailable = true)
 
         onView(withId(cash.z.ecc.android.R.id.button_autoshield_dismiss)).also {
             it.perform(ViewActions.click())
         }
 
         assertThat(
-            Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(ApplicationProvider.getApplicationContext<Context>()),
-            equalTo(true)
+            fragmentNavigationScenario.navigationController.currentDestination?.id,
+            equalTo(cash.z.ecc.android.R.id.nav_shield_final)
         )
     }
 
     @Test
     @MediumTest
     fun clicking_more_info_launches_browser() {
-        val fragmentNavigationScenario = newScenario()
+        val fragmentNavigationScenario = newScenario(isAutoshieldAvailable = false)
 
         onView(withId(cash.z.ecc.android.R.id.button_autoshield_more_info)).also {
             it.perform(ViewActions.click())
@@ -74,25 +74,10 @@ class AutoshieldingInformationFragmentTest : UiTestPrerequisites() {
 
     @Test
     @MediumTest
-    fun clicking_more_info_sets_preference() {
-        newScenario()
-
-        onView(withId(cash.z.ecc.android.R.id.button_autoshield_more_info)).also {
-            it.perform(ViewActions.click())
-        }
-
-        assertThat(
-            Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(ApplicationProvider.getApplicationContext<Context>()),
-            equalTo(true)
-        )
-    }
-
-    @Test
-    @MediumTest
     fun starting_fragment_does_not_launch_activities() {
         Intents.init()
         try {
-            val fragmentNavigationScenario = newScenario()
+            val fragmentNavigationScenario = newScenario(isAutoshieldAvailable = false)
 
             // The test framework launches an Activity to host the Fragment under test
             // Since the class name is not a public API, this could break in the future with newer
@@ -121,8 +106,19 @@ class AutoshieldingInformationFragmentTest : UiTestPrerequisites() {
 
     @Test
     @MediumTest
-    fun back_does_not_set_preference() {
-        val fragmentNavigationScenario = newScenario()
+    fun display_fragment_sets_preference() {
+        newScenario(isAutoshieldAvailable = false)
+
+        assertThat(
+            Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(ApplicationProvider.getApplicationContext<Context>()),
+            equalTo(true)
+        )
+    }
+
+    @Test
+    @MediumTest
+    fun back_navigates_home() {
+        val fragmentNavigationScenario = newScenario(isAutoshieldAvailable = false)
 
         fragmentNavigationScenario.fragmentScenario.onFragment {
             // Probably closest we can come to simulating back with the navigation test framework
@@ -133,15 +129,10 @@ class AutoshieldingInformationFragmentTest : UiTestPrerequisites() {
             fragmentNavigationScenario.navigationController.currentDestination?.id,
             equalTo(cash.z.ecc.android.R.id.nav_home)
         )
-
-        assertThat(
-            Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(ApplicationProvider.getApplicationContext<Context>()),
-            equalTo(false)
-        )
     }
 
     companion object {
-        private fun newScenario(): FragmentNavigationScenario<AutoshieldingInformationFragment> {
+        private fun newScenario(isAutoshieldAvailable: Boolean): FragmentNavigationScenario<AutoshieldingInformationFragment> {
             // Clear preferences for each scenario, as this most closely reflects how this fragment
             // is used in the app, as it is displayed usually on first launch
             SharedPreferenceFactory.getSharedPreferences(ApplicationProvider.getApplicationContext())
@@ -149,7 +140,7 @@ class AutoshieldingInformationFragmentTest : UiTestPrerequisites() {
 
             val scenario = FragmentScenario.launchInContainer(
                 AutoshieldingInformationFragment::class.java,
-                null,
+                HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(isAutoshieldAvailable).arguments,
                 cash.z.ecc.android.R.style.ZcashTheme,
                 null
             )

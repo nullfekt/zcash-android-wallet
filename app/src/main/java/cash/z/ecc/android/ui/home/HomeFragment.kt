@@ -182,9 +182,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         twig("Sync ready! Monitoring synchronizer state...")
         monitorUiModelChanges()
 
-        if (!Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())) {
-            mainActivity?.safeNavigate(R.id.action_nav_home_to_autoshielding_info)
-        } else {
+        if (Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())) {
             maybeInterruptUser()
         }
 
@@ -375,11 +373,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun autoShield(uiModel: HomeViewModel.UiModel) {
+        // TODO: Move the preference read to a suspending function
+        // First time SharedPreferences are hit, it'll perform disk IO
+        val isAutoshieldingAcknowledged = Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())
+
         if (uiModel.hasAutoshieldFunds && canAutoshield()) {
-            twig("Autoshielding is available! Let's do this!!!")
-            mainActivity?.lastAutoShieldTime = System.currentTimeMillis()
-            mainActivity?.safeNavigate(R.id.action_nav_home_to_nav_funds_available)
+            if (!isAutoshieldingAcknowledged) {
+                mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(true))
+            } else {
+                twig("Autoshielding is available! Let's do this!!!")
+                mainActivity?.lastAutoShieldTime = System.currentTimeMillis()
+                mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToNavFundsAvailable())
+            }
         } else {
+            if (!isAutoshieldingAcknowledged) {
+                mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(false))
+            }
+
             // troubleshooting logs
             if (uiModel.transparentBalance.availableZatoshi > 0) {
                 twig("Transparent funds are available but not enough to autoshield. Available: ${uiModel.transparentBalance.availableZatoshi.convertZatoshiToZecString(10)}  Required: ${ZcashWalletApp.instance.autoshieldThreshold.convertZatoshiToZecString(8)}")

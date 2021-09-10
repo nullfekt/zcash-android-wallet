@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.navigation.fragment.findNavController
-import cash.z.ecc.android.R
+import androidx.navigation.fragment.navArgs
 import cash.z.ecc.android.databinding.FragmentAutoShieldInformationBinding
 import cash.z.ecc.android.ext.requireApplicationContext
 import cash.z.ecc.android.feedback.Report
@@ -12,33 +12,46 @@ import cash.z.ecc.android.preference.Preferences
 import cash.z.ecc.android.preference.model.put
 import cash.z.ecc.android.ui.base.BaseFragment
 
-/*
- * If the user presses the Android back button, the backstack will be popped and the user returns
- * to the app home screen.  The preference will not be set in that case, because it could be considered
- * that the user did not acknowledge this prompt.
- */
 class AutoshieldingInformationFragment : BaseFragment<FragmentAutoShieldInformationBinding>() {
     override val screen = Report.Screen.AUTO_SHIELD_INFORMATION
+
+    private val args: AutoshieldingInformationFragmentArgs by navArgs()
 
     override fun inflate(inflater: LayoutInflater): FragmentAutoShieldInformationBinding =
         FragmentAutoShieldInformationBinding.inflate(inflater)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        /*
+         * Once the fragment is displayed, acknowledge it was presented to the user.  While it might
+         * be better to have explicit user interaction (positive/negative button or back),
+         * this implementation is simpler.  Hooking into the positive/negative button is easy, but
+         * hooking into the back button from a Fragment ends up being gross.
+         *
+         * Always acknowledging is necessary, because the HomeFragment will otherwise almost immediately
+         * re-launch this Fragment when it refreshes the UI (and therefore re-runs the
+         * check as to whether the preference to display this fragment has been set).
+         */
+        acknowledge()
+
         binding.buttonAutoshieldDismiss.setOnClickListener {
-            Preferences.isAcknowledgedAutoshieldingInformationPrompt.put(
-                requireApplicationContext(),
-                true
-            )
-            findNavController().navigate(R.id.action_nav_autoshielding_info_to_home)
+            if (args.isStartAutoshield) {
+                // TODO: Move the call to track last autoshield time to the AutoShieldFragment
+                // Dislike this call here; it would likely be better to track last autoshield
+                // time from the fragment that actually does the autoshielding.  Then the tracking
+                // is guaranteed to be called at the right time and we don't have this call scattered
+                // in several different places (e.g. here and in HomeFragment).
+                mainActivity?.lastAutoShieldTime = System.currentTimeMillis()
+
+                findNavController().navigate(AutoshieldingInformationFragmentDirections.actionNavAutoshieldingInfoToAutoshield())
+            } else {
+                findNavController().navigate(AutoshieldingInformationFragmentDirections.actionNavAutoshieldingInfoToHome())
+            }
         }
         binding.buttonAutoshieldMoreInfo.setOnClickListener {
-            Preferences.isAcknowledgedAutoshieldingInformationPrompt.put(
-                requireApplicationContext(),
-                true
-            )
             try {
-                findNavController().navigate(R.id.action_nav_autoshielding_info_to_browser)
+                findNavController().navigate(AutoshieldingInformationFragmentDirections.actionNavAutoshieldingInfoToBrowser())
             } catch (e: Exception) {
                 // ActivityNotFoundException could happen on certain devices, like Android TV, Android Things, etc.
 
@@ -49,8 +62,15 @@ class AutoshieldingInformationFragment : BaseFragment<FragmentAutoShieldInformat
                 // In the future, it might also be desirable to display a Toast or Snackbar indicating
                 // that the browser couldn't be launched
 
-                findNavController().navigate(R.id.action_nav_autoshielding_info_to_home)
+                findNavController().navigate(AutoshieldingInformationFragmentDirections.actionNavAutoshieldingInfoToHome())
             }
         }
+    }
+
+    private fun acknowledge() {
+        Preferences.isAcknowledgedAutoshieldingInformationPrompt.put(
+            requireApplicationContext(),
+            true
+        )
     }
 }

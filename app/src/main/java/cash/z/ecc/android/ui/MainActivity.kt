@@ -49,6 +49,7 @@ import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.Navigator
 import androidx.navigation.findNavController
 import cash.z.ecc.android.R
@@ -220,11 +221,13 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
         navController?.popBackStack(destination, inclusive)
     }
 
-    fun safeNavigate(@IdRes destination: Int, extras: Navigator.Extras? = null) {
+    fun safeNavigate(navDirections: NavDirections) = safeNavigate(navDirections.actionId, navDirections.arguments, null)
+
+    fun safeNavigate(@IdRes destination: Int, args: Bundle? = null, extras: Navigator.Extras? = null) {
         if (navController == null) {
             navInitListeners.add {
                 try {
-                    navController?.navigate(destination, null, null, extras)
+                    navController?.navigate(destination, args, null, extras)
                 } catch (t: Throwable) {
                     twig(
                         "WARNING: during callback, did not navigate to destination: R.id.${
@@ -237,7 +240,7 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
             }
         } else {
             try {
-                navController?.navigate(destination, null, null, extras)
+                navController?.navigate(destination, args, null, extras)
             } catch (t: Throwable) {
                 twig(
                     "WARNING: did not immediately navigate to destination: R.id.${
