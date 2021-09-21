@@ -2,6 +2,7 @@ package cash.z.ecc.android.ui.send
 
 import android.content.Context
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -12,7 +13,11 @@ import cash.z.ecc.android.databinding.FragmentAutoShieldBinding
 import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.ext.invisibleIf
+import cash.z.ecc.android.ext.requireApplicationContext
 import cash.z.ecc.android.feedback.Report
+import cash.z.ecc.android.preference.Preferences
+import cash.z.ecc.android.preference.model.get
+import cash.z.ecc.android.preference.model.put
 import cash.z.ecc.android.sdk.db.entity.PendingTransaction
 import cash.z.ecc.android.sdk.db.entity.isCancelled
 import cash.z.ecc.android.sdk.db.entity.isCreated
@@ -26,6 +31,7 @@ import cash.z.ecc.android.ui.base.BaseFragment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.time.Clock
 
 class AutoShieldFragment : BaseFragment<FragmentAutoShieldBinding>() {
     override val screen = Report.Screen.AUTO_SHIELD_FINAL
@@ -36,6 +42,14 @@ class AutoShieldFragment : BaseFragment<FragmentAutoShieldBinding>() {
 
     override fun inflate(inflater: LayoutInflater): FragmentAutoShieldBinding =
         FragmentAutoShieldBinding.inflate(inflater)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (null == savedInstanceState) {
+            setAutoshield(requireApplicationContext())
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -200,4 +214,29 @@ class AutoShieldFragment : BaseFragment<FragmentAutoShieldBinding>() {
         var showMoreInfoButton: Boolean = false,
         var moreInfoAction: () -> Unit = {},
     )
+
+    companion object {
+        private const val maxAutoshieldFrequency: Long = 30 * DateUtils.MINUTE_IN_MILLIS
+
+        /**
+         * @param clock Optionally allows injecting a clock, in order to make this testable.
+         */
+        fun canAutoshield(context: Context, clock: Clock = Clock.systemUTC()): Boolean {
+            val currentEpochMillis = clock.millis()
+            val lastAutoshieldEpochMillis = Preferences.lastAutoshieldingEpochMillis.get(context)
+
+            val isLastAutoshieldOld = (currentEpochMillis - lastAutoshieldEpochMillis) > maxAutoshieldFrequency
+            // Prevent a corner case where a user with a clock in the future during one autoshielding prompt
+            // could prevent all subsequent autoshielding prompts.
+            val isTimeTraveling = lastAutoshieldEpochMillis > currentEpochMillis
+
+            return isLastAutoshieldOld || isTimeTraveling
+        }
+
+        /**
+         * @param clock Optionally allows injecting a clock, in order to make this testable.
+         */
+        private fun setAutoshield(context: Context, clock: Clock = Clock.systemUTC()) =
+            Preferences.lastAutoshieldingEpochMillis.put(context, clock.millis())
+    }
 }
