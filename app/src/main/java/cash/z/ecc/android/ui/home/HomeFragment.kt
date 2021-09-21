@@ -20,6 +20,7 @@ import cash.z.ecc.android.ext.disabledIf
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.ext.invisibleIf
 import cash.z.ecc.android.ext.onClickNavTo
+import cash.z.ecc.android.ext.requireApplicationContext
 import cash.z.ecc.android.ext.showSharedLibraryCriticalError
 import cash.z.ecc.android.ext.toAppColor
 import cash.z.ecc.android.ext.toColoredSpan
@@ -32,6 +33,8 @@ import cash.z.ecc.android.feedback.Report.Tap.HOME_HISTORY
 import cash.z.ecc.android.feedback.Report.Tap.HOME_PROFILE
 import cash.z.ecc.android.feedback.Report.Tap.HOME_RECEIVE
 import cash.z.ecc.android.feedback.Report.Tap.HOME_SEND
+import cash.z.ecc.android.preference.Preferences
+import cash.z.ecc.android.preference.model.get
 import cash.z.ecc.android.sdk.Synchronizer.Status.DISCONNECTED
 import cash.z.ecc.android.sdk.Synchronizer.Status.STOPPED
 import cash.z.ecc.android.sdk.Synchronizer.Status.SYNCED
@@ -178,7 +181,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     private fun onSyncReady() {
         twig("Sync ready! Monitoring synchronizer state...")
         monitorUiModelChanges()
-        maybeInterruptUser()
+
+        if (Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())) {
+            maybeInterruptUser()
+        }
 
         twig("HomeFragment.onSyncReady COMPLETE")
     }
@@ -367,11 +373,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun autoShield(uiModel: HomeViewModel.UiModel) {
+        // TODO: Move the preference read to a suspending function
+        // First time SharedPreferences are hit, it'll perform disk IO
+        val isAutoshieldingAcknowledged = Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())
+
         if (uiModel.hasAutoshieldFunds && canAutoshield()) {
-            twig("Autoshielding is available! Let's do this!!!")
-            mainActivity?.lastAutoShieldTime = System.currentTimeMillis()
-            mainActivity?.safeNavigate(R.id.action_nav_home_to_nav_funds_available)
+            if (!isAutoshieldingAcknowledged) {
+                mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(true))
+            } else {
+                twig("Autoshielding is available! Let's do this!!!")
+                mainActivity?.lastAutoShieldTime = System.currentTimeMillis()
+                mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToNavFundsAvailable())
+            }
         } else {
+            if (!isAutoshieldingAcknowledged) {
+                mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(false))
+            }
+
             // troubleshooting logs
             if (uiModel.transparentBalance.availableZatoshi > 0) {
                 twig("Transparent funds are available but not enough to autoshield. Available: ${uiModel.transparentBalance.availableZatoshi.convertZatoshiToZecString(10)}  Required: ${ZcashWalletApp.instance.autoshieldThreshold.convertZatoshiToZecString(8)}")

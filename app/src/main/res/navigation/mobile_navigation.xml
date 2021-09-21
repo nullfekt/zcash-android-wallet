@@ -20,6 +20,9 @@
             android:id="@+id/action_nav_home_to_create_wallet"
             app:destination="@id/nav_landing" />
         <action
+            android:id="@+id/action_nav_home_to_autoshielding_info"
+            app:destination="@id/nav_autoshielding_info" />
+        <action
             android:id="@+id/action_nav_home_to_send"
             app:destination="@id/nav_send"
             app:exitAnim="@anim/anim_exit_to_left"
@@ -116,6 +119,33 @@
             app:popUpTo="@id/nav_home"
             app:popUpToInclusive="false"/>
     </fragment>
+    <fragment
+        android:id="@+id/nav_autoshielding_info"
+        android:name="cash.z.ecc.android.ui.home.AutoshieldingInformationFragment"
+        tools:layout="@layout/fragment_auto_shield_information"
+        >
+        <argument android:name="isStartAutoshield"
+            app:argType="boolean"
+            android:defaultValue="false"/>
+        <action
+            android:id="@+id/action_nav_autoshielding_info_to_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_nav_autoshielding_info_to_autoshield"
+            app:destination="@id/nav_shield_final" />
+        <action
+            android:id="@+id/action_nav_autoshielding_info_to_browser"
+            app:destination="@id/nav_autoshielding_info_details"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <activity
+        android:id="@+id/nav_autoshielding_info_details"
+        app:action="android.intent.action.VIEW"
+        app:data="@string/autoshield_explanation_url" />
 
     <!--                 -->
     <!-- Send Navigation -->
@@ -229,7 +259,7 @@
             app:popUpTo="@id/nav_home"
             app:popUpToInclusive="false"/>
     </fragment>
-    
+
     <!--                         -->
     <!-- Wallet Setup Navigation -->
     <!--                         -->
@@ -264,6 +294,7 @@
             app:popUpTo="@id/nav_landing"
             app:popUpToInclusive="true" />
     </fragment>
+
 
 
     <!--                -->

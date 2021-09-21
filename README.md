@@ -49,7 +49,7 @@ To build from the command line, [setup ADB](https://www.xda-developers.com/insta
 cd /path/to/zcash-android-wallet
 ./gradlew
 ```
-Note: The lack of an explicit Gradle task is not a typo. A default task is configured via [build.gradle](build.gradle).
+Note: The lack of an explicit Gradle task is not a typo. A default task is configured via [build.gradle.kts](build.gradle.kts).
 
 Tip: On macOS and Linux, Gradle is invoked with `./gradlew`.  On Windows, Gradle is invoked with `gradlew`.
 

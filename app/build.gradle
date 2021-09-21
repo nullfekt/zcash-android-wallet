@@ -20,8 +20,10 @@ android {
         targetSdkVersion Deps.targetSdkVersion
         versionCode = Deps.versionCode
         versionName = Deps.versionName
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        testInstrumentationRunnerArguments clearPackageData: 'true'
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        if (Boolean.parseBoolean(isUseTestOrchestrator)) {
+            testInstrumentationRunnerArguments clearPackageData: 'true'
+        }
         multiDexEnabled true
         resValue 'string', 'bugsnag_api_key', "${(project.findProperty('BUGSNAG_API_KEY') ?: System.getenv('BUGSNAG_API_KEY')) ?: ''}"
 
@@ -92,7 +94,9 @@ android {
 //        freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.FlowPreview"
     }
     testOptions {
-        execution 'ANDROIDX_TEST_ORCHESTRATOR'
+        if (Boolean.parseBoolean(isUseTestOrchestrator)) {
+            execution 'ANDROIDX_TEST_ORCHESTRATOR'
+        }
     }
     kapt {
         arguments {
@@ -183,8 +187,15 @@ dependencies {
     testImplementation Deps.Test.MOKITO
     testImplementation Deps.Test.MOKITO_KOTLIN
 
+    androidTestImplementation Deps.Kotlin.REFLECT
     androidTestImplementation Deps.Test.Android.JUNIT
-
+    androidTestImplementation Deps.Test.Android.CORE
+    androidTestImplementation Deps.Test.Android.FRAGMENT
+    androidTestImplementation Deps.Test.Android.ESPRESSO
+    androidTestImplementation Deps.Test.Android.ESPRESSO_INTENTS
+    androidTestImplementation Deps.Test.Android.NAVIGATION
+    // androidTestImplementation is preferred, but then the androidx.fragment.app.testing.FragmentScenario$EmptyFragmentActivity isn't available
+    debugImplementation Deps.Test.Android.FRAGMENT
 }
 
 defaultTasks 'clean', 'assembleZcashmainnetRelease'

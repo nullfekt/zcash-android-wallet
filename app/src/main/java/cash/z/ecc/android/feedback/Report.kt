@@ -124,6 +124,7 @@ object Report {
         SCAN,
         AUTO_SHIELD_FINAL("autoshield.final"),
         AUTO_SHIELD_AVAILABLE("autoshield.available"),
+        AUTO_SHIELD_INFORMATION("autoshield.information"),
         SEND_ADDRESS("send.address"),
         SEND_CONFIRM("send.confirm"),
         SEND_FINAL("send.final"),
