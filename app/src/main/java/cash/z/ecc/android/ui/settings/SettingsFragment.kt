@@ -19,7 +19,7 @@ import cash.z.ecc.android.ext.toAppString
 import cash.z.ecc.android.ext.visible
 import cash.z.ecc.android.sdk.exception.LightWalletException
 import cash.z.ecc.android.sdk.ext.collectWith
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
 import kotlinx.coroutines.launch
 

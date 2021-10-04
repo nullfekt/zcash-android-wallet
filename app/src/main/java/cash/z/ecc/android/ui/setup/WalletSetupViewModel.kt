@@ -10,7 +10,7 @@ import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Initializer
 import cash.z.ecc.android.sdk.exception.InitializerException
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.tool.WalletBirthdayTool
 import cash.z.ecc.android.sdk.type.UnifiedViewingKey

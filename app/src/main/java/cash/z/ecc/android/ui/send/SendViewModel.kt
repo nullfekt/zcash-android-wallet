@@ -31,7 +31,7 @@ import cash.z.ecc.android.sdk.db.entity.isFailedSubmit
 import cash.z.ecc.android.sdk.db.entity.isMined
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.type.AddressType
 import cash.z.ecc.android.ui.util.INCLUDE_MEMO_PREFIX_STANDARD

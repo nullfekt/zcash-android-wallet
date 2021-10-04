@@ -20,7 +20,7 @@ import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.onClickNavBack
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.SCAN_BACK
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.send.SendViewModel
 import com.google.common.util.concurrent.ListenableFuture

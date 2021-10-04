@@ -9,7 +9,7 @@ import cash.z.ecc.android.di.component.DaggerAppComponent
 import cash.z.ecc.android.ext.tryWithWarning
 import cash.z.ecc.android.feedback.FeedbackCoordinator
 import cash.z.ecc.android.sdk.ext.ZcashSdk
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.sdk.type.ZcashNetwork
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

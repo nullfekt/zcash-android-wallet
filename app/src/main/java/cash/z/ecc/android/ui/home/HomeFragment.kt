@@ -42,7 +42,7 @@ import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
 import cash.z.ecc.android.sdk.ext.convertZecToZatoshi
 import cash.z.ecc.android.sdk.ext.onFirstWith
 import cash.z.ecc.android.sdk.ext.safelyConvertToBigDecimal
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.CANCEL
 import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.CLEAR

@@ -18,7 +18,7 @@ import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.isShielded
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.MainActivity
 import cash.z.ecc.android.ui.util.toUtf8Memo
 import kotlinx.coroutines.launch

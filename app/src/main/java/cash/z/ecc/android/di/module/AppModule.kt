@@ -12,8 +12,8 @@ import cash.z.ecc.android.feedback.FeedbackCoordinator
 import cash.z.ecc.android.feedback.FeedbackFile
 import cash.z.ecc.android.feedback.FeedbackMixpanel
 import cash.z.ecc.android.lockbox.LockBox
-import cash.z.ecc.android.sdk.ext.SilentTwig
-import cash.z.ecc.android.sdk.ext.Twig
+import cash.z.ecc.android.util.SilentTwig
+import cash.z.ecc.android.util.Twig
 import cash.z.ecc.android.ui.util.DebugFileTwig
 import dagger.Module
 import dagger.Provides

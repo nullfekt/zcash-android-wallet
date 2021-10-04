@@ -2,7 +2,7 @@ package cash.z.ecc.android.ui.scan
 
 import androidx.lifecycle.ViewModel
 import cash.z.ecc.android.sdk.Synchronizer
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import javax.inject.Inject
 
 class ScanViewModel @Inject constructor() : ViewModel() {

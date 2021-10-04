@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 import javax.inject.Named

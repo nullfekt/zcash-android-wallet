@@ -1,7 +1,7 @@
 package cash.z.ecc.android.ui.util
 
 import cash.z.ecc.android.ZcashWalletApp
-import cash.z.ecc.android.sdk.ext.TroubleshootingTwig
+import cash.z.ecc.android.util.TroubleshootingTwig
 import okio.Okio
 import java.io.File
 
