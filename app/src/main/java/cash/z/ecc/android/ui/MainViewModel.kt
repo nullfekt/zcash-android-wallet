@@ -1,7 +1,7 @@
 package cash.z.ecc.android.ui
 
 import androidx.lifecycle.ViewModel
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

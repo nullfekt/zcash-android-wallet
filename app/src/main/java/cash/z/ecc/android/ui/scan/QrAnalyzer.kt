@@ -2,7 +2,7 @@ package cash.z.ecc.android.ui.scan
 
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.NotFoundException
 import com.google.zxing.PlanarYUVLuminanceSource

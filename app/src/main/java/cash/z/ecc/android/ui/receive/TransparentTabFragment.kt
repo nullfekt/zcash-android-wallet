@@ -13,7 +13,7 @@ import cash.z.ecc.android.databinding.FragmentTabReceiveTransparentBinding
 import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.distribute
 import cash.z.ecc.android.feedback.Report
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.util.AddressPartNumberSpan
 import kotlinx.coroutines.launch

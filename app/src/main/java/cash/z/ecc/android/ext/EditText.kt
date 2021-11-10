@@ -7,7 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import cash.z.ecc.android.sdk.ext.convertZecToZatoshi
 import cash.z.ecc.android.sdk.ext.safelyConvertToBigDecimal
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 
 fun EditText.onEditorActionDone(block: (EditText) -> Unit) {
     this.setOnEditorActionListener { _, actionId, _ ->

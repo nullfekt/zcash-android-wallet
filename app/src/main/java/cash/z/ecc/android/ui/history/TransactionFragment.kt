@@ -26,7 +26,7 @@ import cash.z.ecc.android.ext.toColoredSpan
 import cash.z.ecc.android.ext.visible
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.history.HistoryViewModel.UiModel
 import kotlinx.coroutines.flow.collect

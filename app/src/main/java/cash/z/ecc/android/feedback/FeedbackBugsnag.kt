@@ -2,7 +2,7 @@ package cash.z.ecc.android.feedback
 
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
-import cash.z.ecc.android.sdk.ext.twig
+import cash.z.ecc.android.util.twig
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Configuration
 
