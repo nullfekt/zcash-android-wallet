@@ -53,6 +53,24 @@ Note: The lack of an explicit Gradle task is not a typo. A default task is confi
 
 Tip: On macOS and Linux, Gradle is invoked with `./gradlew`.  On Windows, Gradle is invoked with `gradlew`.
 
+
+# Included builds
+To simplify implementation of SDK features in conjunction with changes to the app, a Gradle [Included Build](https://docs.gradle.org/current/userguide/composite_builds.html) can be configured.
+
+1. Check out the SDK to a directory path of `../zcash-android-sdk` relative to the root of this app's repo.  For example:
+
+        parent/
+            zcash-android-wallet/
+            zcash-android-sdk/
+
+1. Verify that the `zcash-android-sdk` builds correctly on its own
+1. Build `zcash-android-wallet`, setting the Gradle property `IS_SDK_INCLUDED_BUILD=true`
+
+There are some limitations of included builds:
+1. Properties from `zcash-android-wallet` will override those set in `zcash-android-sdk` with the same name
+1. Modules in each project cannot share the same name.  For this reason, build-conventions have different names in each repo (`zcash-android-sdk/build-conventions` vs `secant-android-wallet/build-convention`)
+1. Kotlin and KSP versions will need to be coordinated between the two projects, because KSP is tightly coupled to the Kotlin version
+
 # Contributing
 
 Contributions are very much welcomed! Please read our [Contributing Guidelines](/CONTRIBUTING.md) and [Code of Conduct](/CONDUCT.md). Our backlog has many Issues tagged with the `good first issue` label. Please fork the repo and make a pull request for us to review.
