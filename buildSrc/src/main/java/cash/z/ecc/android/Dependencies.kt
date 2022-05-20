@@ -3,7 +3,7 @@ package cash.z.ecc.android
 object Deps {
     // For use in the top-level build.gradle which gives an error when provided
     // `Deps.Kotlin.version` directly
-    const val kotlinVersion =       "1.5.10"
+    const val kotlinVersion =       "1.6.21"
     const val navigationVersion =   "2.3.5"
 
     const val compileSdkVersion =   31
@@ -75,7 +75,7 @@ object Deps {
     object Kotlin :             Version(kotlinVersion) {
         val STDLIB =                         "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$version"
         val REFLECT =                        "org.jetbrains.kotlin:kotlin-reflect:$version"
-        object Coroutines :     Version("1.4.2") {
+        object Coroutines :     Version("1.6.1") {
             val ANDROID =                    "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
             val CORE =                       "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
             val TEST =                       "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version"
