@@ -18,6 +18,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name="ecc-wallet"
+
+includeBuild("build-convention")
+
 include(":app")
 include(":qrecycler")
 include(":feedback")

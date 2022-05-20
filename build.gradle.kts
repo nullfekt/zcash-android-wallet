@@ -13,6 +13,7 @@ buildscript {
 
 plugins {
     id("com.github.ben-manes.versions")
+    id("zcash.ktlint-conventions")
 }
 
 defaultTasks("clean", "installZcashmainnetRelease")
