@@ -13,7 +13,6 @@ version = Deps.versionName
 android {
     ndkVersion "21.1.6352462"
     compileSdkVersion Deps.compileSdkVersion
-    buildToolsVersion Deps.buildToolsVersion
     defaultConfig {
         applicationId Deps.packageName
         minSdkVersion Deps.minSdkVersion
