@@ -26,8 +26,8 @@ import cash.z.ecc.android.sdk.db.entity.isFailedEncoding
 import cash.z.ecc.android.sdk.db.entity.isFailure
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.collectWith
-import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
+import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

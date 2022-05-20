@@ -42,7 +42,6 @@ import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
 import cash.z.ecc.android.sdk.ext.convertZecToZatoshi
 import cash.z.ecc.android.sdk.ext.onFirstWith
 import cash.z.ecc.android.sdk.ext.safelyConvertToBigDecimal
-import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.CANCEL
 import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.CLEAR
@@ -51,6 +50,7 @@ import cash.z.ecc.android.ui.send.AutoShieldFragment
 import cash.z.ecc.android.ui.send.SendViewModel
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.NO_SEED
+import cash.z.ecc.android.util.twig
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch

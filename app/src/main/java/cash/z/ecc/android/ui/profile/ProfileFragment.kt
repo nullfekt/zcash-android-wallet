@@ -31,12 +31,12 @@ import cash.z.ecc.android.feedback.Report.Tap.PROFILE_SEND_FEEDBACK
 import cash.z.ecc.android.feedback.Report.Tap.PROFILE_VIEW_DEV_LOGS
 import cash.z.ecc.android.feedback.Report.Tap.PROFILE_VIEW_USER_LOGS
 import cash.z.ecc.android.sdk.SdkSynchronizer
-import cash.z.ecc.android.util.Bush
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
-import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.MainActivity
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.util.DebugFileTwig
+import cash.z.ecc.android.util.Bush
+import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.launch
 import java.io.File
 

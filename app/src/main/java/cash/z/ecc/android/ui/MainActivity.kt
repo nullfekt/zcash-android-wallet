@@ -78,9 +78,9 @@ import cash.z.ecc.android.sdk.exception.CompactBlockProcessorException
 import cash.z.ecc.android.sdk.ext.BatchMetrics
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
-import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.history.HistoryViewModel
 import cash.z.ecc.android.ui.util.MemoUtil
+import cash.z.ecc.android.util.twig
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect

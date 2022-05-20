@@ -14,9 +14,9 @@ import cash.z.ecc.android.sdk.SdkSynchronizer
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
 import cash.z.ecc.android.sdk.ext.ZcashSdk
-import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.util.MemoUtil
 import cash.z.ecc.android.ui.util.toUtf8Memo
+import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

@@ -13,9 +13,9 @@ import cash.z.ecc.android.databinding.FragmentTabReceiveShieldedBinding
 import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.distribute
 import cash.z.ecc.android.feedback.Report
-import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.util.AddressPartNumberSpan
+import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.launch
 
 class ReceiveTabFragment :

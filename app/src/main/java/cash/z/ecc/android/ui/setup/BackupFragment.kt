@@ -22,10 +22,10 @@ import cash.z.ecc.android.feedback.Report.Tap.BACKUP_VERIFY
 import cash.z.ecc.android.feedback.measure
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.ext.ZcashSdk
-import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.SEED_WITH_BACKUP
 import cash.z.ecc.android.ui.util.AddressPartNumberSpan
+import cash.z.ecc.android.util.twig
 import cash.z.ecc.kotlin.mnemonic.Mnemonics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first

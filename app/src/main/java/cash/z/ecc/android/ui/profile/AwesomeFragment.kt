@@ -27,10 +27,10 @@ import cash.z.ecc.android.sdk.db.entity.isFailedEncoding
 import cash.z.ecc.android.sdk.db.entity.isFailure
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
-import cash.z.ecc.android.util.twig
 import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.util.AddressPartNumberSpan
+import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
