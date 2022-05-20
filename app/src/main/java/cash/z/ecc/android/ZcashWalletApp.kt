@@ -9,8 +9,9 @@ import cash.z.ecc.android.di.component.DaggerAppComponent
 import cash.z.ecc.android.ext.tryWithWarning
 import cash.z.ecc.android.feedback.FeedbackCoordinator
 import cash.z.ecc.android.sdk.ext.ZcashSdk
-import cash.z.ecc.android.util.twig
+import cash.z.ecc.android.sdk.internal.Twig
 import cash.z.ecc.android.sdk.type.ZcashNetwork
+import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -61,6 +62,8 @@ class ZcashWalletApp : Application(), CameraXConfig.Provider {
         // reported by the crash reporting.
         if (BuildConfig.DEBUG) {
             StrictModeHelper.enableStrictMode()
+            cash.z.ecc.android.sdk.internal.Twig.enabled(true)
+            cash.z.ecc.android.util.Twig.enabled(true)
         }
 
         // Setup handler for uncaught exceptions.
