@@ -3,7 +3,7 @@ package cash.z.ecc.android
 object Deps {
     // For use in the top-level build.gradle which gives an error when provided
     // `Deps.Kotlin.version` directly
-    const val kotlinVersion =       "1.6.21"
+    const val kotlinVersion =       "1.7.0"
     const val navigationVersion =   "2.3.5"
 
     const val compileSdkVersion =   31
