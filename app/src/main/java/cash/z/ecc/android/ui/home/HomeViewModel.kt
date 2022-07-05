@@ -14,8 +14,8 @@ import cash.z.ecc.android.sdk.block.CompactBlockProcessor
 import cash.z.ecc.android.sdk.db.entity.PendingTransaction
 import cash.z.ecc.android.sdk.db.entity.isMined
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
-import cash.z.ecc.android.sdk.ext.ZcashSdk.MINERS_FEE_ZATOSHI
-import cash.z.ecc.android.sdk.ext.ZcashSdk.ZATOSHI_PER_ZEC
+import cash.z.ecc.android.sdk.ext.ZcashSdk.MINERS_FEE
+import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -97,13 +97,13 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                 UiModel(
                     status = flows[0] as Synchronizer.Status,
                     processorInfo = flows[1] as CompactBlockProcessor.ProcessorInfo,
-                    orchardBalance = flows[2] as WalletBalance,
-                    saplingBalance = flows[3] as WalletBalance,
-                    transparentBalance = flows[4] as WalletBalance,
+                    orchardBalance = flows[2] as WalletBalance?,
+                    saplingBalance = flows[3] as WalletBalance?,
+                    transparentBalance = flows[4] as WalletBalance?,
                     pendingSend = flows[5] as String,
                     unminedCount = unminedCount
                 )
-            }.onStart { emit(UiModel()) }
+            }.onStart { emit(UiModel(orchardBalance = null, saplingBalance = null, transparentBalance = null)) }
         }.conflate()
     }
 
@@ -119,16 +119,16 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     data class UiModel(
         val status: Synchronizer.Status = DISCONNECTED,
         val processorInfo: CompactBlockProcessor.ProcessorInfo = CompactBlockProcessor.ProcessorInfo(),
-        val orchardBalance: WalletBalance = WalletBalance(),
-        val saplingBalance: WalletBalance = WalletBalance(),
-        val transparentBalance: WalletBalance = WalletBalance(),
+        val orchardBalance: WalletBalance?,
+        val saplingBalance: WalletBalance?,
+        val transparentBalance: WalletBalance?,
         val pendingSend: String = "0",
         val unminedCount: Int = 0
     ) {
         // Note: the wallet is effectively empty if it cannot cover the miner's fee
-        val hasFunds: Boolean get() = saplingBalance.availableZatoshi > (MINERS_FEE_ZATOSHI.toDouble() / ZATOSHI_PER_ZEC) // 0.00001
-        val hasSaplingBalance: Boolean get() = saplingBalance.totalZatoshi > 0
-        val hasAutoshieldFunds: Boolean get() = transparentBalance.availableZatoshi >= ZcashWalletApp.instance.autoshieldThreshold
+        val hasFunds: Boolean get() = (saplingBalance?.available?.value ?: 0) > (MINERS_FEE.value.toDouble() / Zatoshi.ZATOSHI_PER_ZEC) // 0.00001
+        val hasSaplingBalance: Boolean get() = (saplingBalance?.total?.value ?: 0) > 0L
+        val hasAutoshieldFunds: Boolean get() = (transparentBalance?.available?.value ?: 0) >= ZcashWalletApp.instance.autoshieldThreshold
         val isSynced: Boolean get() = status == SYNCED
         val isSendEnabled: Boolean get() = isSynced && hasFunds
 

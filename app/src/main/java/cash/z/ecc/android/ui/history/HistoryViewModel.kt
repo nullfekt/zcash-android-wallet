@@ -13,7 +13,9 @@ import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.SdkSynchronizer
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
+import cash.z.ecc.android.sdk.db.entity.valueInZatoshi
 import cash.z.ecc.android.sdk.ext.ZcashSdk
+import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.ui.util.MemoUtil
 import cash.z.ecc.android.ui.util.toUtf8Memo
 import cash.z.ecc.android.util.twig
@@ -77,7 +79,7 @@ class HistoryViewModel @Inject constructor() : ViewModel() {
                 else -> null
             }
             isMined = tx?.minedHeight != null && tx.minedHeight > synchronizer.network.saplingActivationHeight
-            topValue = if (tx == null) "" else "\$${WalletZecFormmatter.toZecStringFull(tx.value)}"
+            topValue = if (tx == null) "" else "\$${WalletZecFormmatter.toZecStringFull(tx.valueInZatoshi)}"
             minedHeight = String.format("%,d", tx?.minedHeight ?: 0)
             val flags =
                 DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH
@@ -124,7 +126,7 @@ class HistoryViewModel @Inject constructor() : ViewModel() {
                 true -> {
                     topLabel = getString(R.string.transaction_story_inbound)
                     bottomLabel = getString(R.string.transaction_story_inbound_total)
-                    bottomValue = "\$${WalletZecFormmatter.toZecStringFull(tx?.value)}"
+                    bottomValue = "\$${WalletZecFormmatter.toZecStringFull(tx?.valueInZatoshi)}"
                     iconRotation = 315f
                     source = getString(R.string.transaction_story_to_shielded)
                     address = MemoUtil.findAddressInMemo(tx, (synchronizer as SdkSynchronizer)::isValidAddress)
@@ -132,7 +134,7 @@ class HistoryViewModel @Inject constructor() : ViewModel() {
                 false -> {
                     topLabel = getString(R.string.transaction_story_outbound)
                     bottomLabel = getString(R.string.transaction_story_outbound_total)
-                    bottomValue = "\$${WalletZecFormmatter.toZecStringFull(tx?.value?.plus(ZcashSdk.MINERS_FEE_ZATOSHI))}"
+                    bottomValue = "\$${WalletZecFormmatter.toZecStringFull(Zatoshi((tx?.valueInZatoshi?.value ?: 0) + ZcashSdk.MINERS_FEE.value))}"
                     iconRotation = 135f
                     fee = "+ 0.00001 network fee"
                     source = getString(R.string.transaction_story_from_shielded)

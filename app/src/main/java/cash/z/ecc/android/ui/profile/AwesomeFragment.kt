@@ -27,6 +27,7 @@ import cash.z.ecc.android.sdk.db.entity.isFailedEncoding
 import cash.z.ecc.android.sdk.db.entity.isFailure
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
+import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.util.AddressPartNumberSpan
@@ -219,15 +220,15 @@ class AwesomeFragment : BaseFragment<FragmentAwesomeBinding>() {
     }
 
     private fun onBalanceUpdated(
-        balance: WalletBalance = WalletBalance(0, 0),
+        balance: WalletBalance = WalletBalance(Zatoshi(0), Zatoshi(0)),
         utxoCount: Int = 0
     ) {
         lastBalance = balance
-        twig("TRANSPARENT BALANCE: ${balance.availableZatoshi} / ${balance.totalZatoshi}")
-        binding.textStatus.text = if (balance.availableZatoshi > 0L) {
+        twig("TRANSPARENT BALANCE: ${balance.available} / ${balance.total}")
+        binding.textStatus.text = if (balance.available.value > 0L) {
             binding.buttonAction.isActivated = true
             binding.buttonAction.isEnabled = true
-            "Balance: ᙇ${balance.availableZatoshi.convertZatoshiToZecString(8)}"
+            "Balance: ᙇ${balance.available.convertZatoshiToZecString(8)}"
         } else {
             binding.buttonAction.isActivated = false
             binding.buttonAction.isEnabled = true
@@ -239,7 +240,7 @@ class AwesomeFragment : BaseFragment<FragmentAwesomeBinding>() {
             appendStatus(if (utxoCount == 1) "transaction!" else "transactions!")
         }
 
-        balance.pending.takeIf { it > 0 }?.let {
+        balance.pending.takeIf { it.value > 0 }?.let {
             appendStatus("\n\n(ᙇ${it.convertZatoshiToZecString()} pending confirmation)")
         }
     }
@@ -267,7 +268,7 @@ class AwesomeFragment : BaseFragment<FragmentAwesomeBinding>() {
                 model.primaryAction = { onShieldFundsAction() }
             }
             else -> {
-                model.status = "Shielding ᙇ${lastBalance?.availableZatoshi.convertZatoshiToZecString()}\n\nPlease do not exit this screen!"
+                model.status = "Shielding ᙇ${lastBalance?.available.convertZatoshiToZecString()}\n\nPlease do not exit this screen!"
                 model.showProgress = true
                 if (isCreating()) {
                     model.canCancel = true

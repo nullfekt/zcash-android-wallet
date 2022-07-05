@@ -87,7 +87,7 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
         } else {
             val toast = when {
                 // if funds exist but they're all unconfirmed
-                (viewModel.latestBalance?.transparentBalance?.totalZatoshi ?: 0) > 0 -> {
+                (viewModel.latestBalance?.transparentBalance?.total?.value ?: 0) > 0 -> {
                     "Please wait for more confirmations"
                 }
                 viewModel.latestBalance?.hasData() == true -> {

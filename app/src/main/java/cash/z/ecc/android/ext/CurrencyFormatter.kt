@@ -5,6 +5,7 @@ import cash.z.ecc.android.ext.ConversionsUniform.LONG_SCALE
 import cash.z.ecc.android.ext.ConversionsUniform.SHORT_FORMATTER
 import cash.z.ecc.android.sdk.ext.Conversions
 import cash.z.ecc.android.sdk.ext.ZcashSdk
+import cash.z.ecc.android.sdk.model.Zatoshi
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
@@ -25,7 +26,7 @@ import java.util.Locale
  *
  */
 object ConversionsUniform {
-    val ONE_ZEC_IN_ZATOSHI = BigDecimal(ZcashSdk.ZATOSHI_PER_ZEC, MathContext.DECIMAL128)
+    val ONE_ZEC_IN_ZATOSHI = BigDecimal(Zatoshi.ZATOSHI_PER_ZEC, MathContext.DECIMAL128)
     val LONG_SCALE = 8
     val SHORT_SCALE = 4
     val SHORT_FORMATTER = from(SHORT_SCALE, SHORT_SCALE)
@@ -47,11 +48,11 @@ object WalletZecFormmatter {
     fun toZatoshi(zecString: String): Long? {
         return toBigDecimal(zecString)?.multiply(Conversions.ONE_ZEC_IN_ZATOSHI, MathContext.DECIMAL128)?.toLong()
     }
-    fun toZecStringShort(zatoshi: Long?): String {
-        return SHORT_FORMATTER.format((zatoshi ?: 0).toZec())
+    fun toZecStringShort(amount: Zatoshi?): String {
+        return SHORT_FORMATTER.format((amount ?: Zatoshi(0)).toZec())
     }
-    fun toZecStringFull(zatoshi: Long?): String {
-        return formatFull((zatoshi ?: 0).toZec())
+    fun toZecStringFull(amount: Zatoshi?): String {
+        return formatFull((amount ?: Zatoshi(0)).toZec())
     }
     fun formatFull(zec: BigDecimal): String {
         return FULL_FORMATTER.format(zec)
@@ -68,8 +69,8 @@ object WalletZecFormmatter {
     }
 
     // convert a zatoshi value to ZEC as a BigDecimal
-    private fun Long?.toZec(): BigDecimal =
-        BigDecimal(this ?: 0L, MathContext.DECIMAL128)
+    private fun Zatoshi?.toZec(): BigDecimal =
+        BigDecimal(this?.value ?: 0L, MathContext.DECIMAL128)
             .divide(ConversionsUniform.ONE_ZEC_IN_ZATOSHI)
             .setScale(LONG_SCALE, ConversionsUniform.roundingMode)
 }

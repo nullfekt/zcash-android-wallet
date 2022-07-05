@@ -15,6 +15,7 @@ import cash.z.ecc.android.ext.toAppColor
 import cash.z.ecc.android.ext.toAppInt
 import cash.z.ecc.android.ext.toColoredSpan
 import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
+import cash.z.ecc.android.sdk.db.entity.valueInZatoshi
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.isShielded
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
@@ -59,7 +60,7 @@ class TransactionViewHolder<T : ConfirmedTransaction>(itemView: View) : Recycler
                         onTransactionLongPressed(this)
                         true
                     }
-                    amountZec = WalletZecFormmatter.toZecStringShort(value)
+                    amountZec = WalletZecFormmatter.toZecStringShort(valueInZatoshi)
                     // TODO: these might be good extension functions
                     val timestamp = formatter.format(blockTimeInSeconds * 1000L)
                     val isMined = blockTimeInSeconds != 0L
@@ -122,7 +123,7 @@ class TransactionViewHolder<T : ConfirmedTransaction>(itemView: View) : Recycler
                         }
                     }
                     // sanitize amount
-                    if (value < ZcashSdk.MINERS_FEE_ZATOSHI * 10) amountDisplay = "< 0.0001"
+                    if (value < ZcashSdk.MINERS_FEE.value * 10) amountDisplay = "< 0.0001"
                     else if (amountZec.length > 10) { // 10 allows 3 digits to the left and 6 to the right of the decimal
                         amountDisplay = str(R.string.transaction_instruction_tap)
                     }

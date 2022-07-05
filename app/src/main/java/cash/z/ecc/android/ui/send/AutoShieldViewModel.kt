@@ -11,6 +11,7 @@ import cash.z.ecc.android.sdk.db.entity.isMined
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
+import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.util.twig
@@ -45,7 +46,7 @@ class AutoShieldViewModel @Inject constructor() : ViewModel() {
     val statuses get() = combineTransform(synchronizer.saplingBalances, synchronizer.pendingTransactions, synchronizer.processorInfo) { balance, pending, info ->
         val unconfirmed = pending.filter { !it.isConfirmed(info.networkBlockHeight) }
         val unmined = pending.filter { it.isSubmitSuccess() && !it.isMined() }
-        val pending = balance.pending
+        val pending = balance?.pending?.value ?: 0
         emit(StatusModel(unmined, unconfirmed, pending, info.networkBlockHeight))
     }
 
@@ -96,21 +97,21 @@ class AutoShieldViewModel @Inject constructor() : ViewModel() {
     }
 
     data class BalanceModel(
-        val orchardBalance: WalletBalance = WalletBalance(),
-        val saplingBalance: WalletBalance = WalletBalance(),
-        val transparentBalance: WalletBalance = WalletBalance(),
+        val orchardBalance: WalletBalance?,
+        val saplingBalance: WalletBalance?,
+        val transparentBalance: WalletBalance?,
     ) {
-        val balanceShielded: String = saplingBalance.availableZatoshi.toDisplay()
-        val balanceTransparent: String = transparentBalance.availableZatoshi.toDisplay()
-        val balanceTotal: String = (saplingBalance.availableZatoshi + transparentBalance.availableZatoshi).toDisplay()
-        val canAutoShield: Boolean = transparentBalance.availableZatoshi > 0L
+        val balanceShielded: String = saplingBalance?.available.toDisplay()
+        val balanceTransparent: String = transparentBalance?.available.toDisplay()
+        val balanceTotal: String = ((saplingBalance?.available ?: Zatoshi(0)) + (transparentBalance?.available ?: Zatoshi(0))).toDisplay()
+        val canAutoShield: Boolean = (transparentBalance?.available?.value ?: 0) > 0L
 
         val maxLength = maxOf(balanceShielded.length, balanceTransparent.length, balanceTotal.length)
         val paddedShielded = pad(balanceShielded)
         val paddedTransparent = pad(balanceTransparent)
         val paddedTotal = pad(balanceTotal)
 
-        private fun Long.toDisplay(): String {
+        private fun Zatoshi?.toDisplay(): String {
             return convertZatoshiToZecString(8, 8)
         }
 

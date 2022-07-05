@@ -42,6 +42,7 @@ import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
 import cash.z.ecc.android.sdk.ext.convertZecToZatoshi
 import cash.z.ecc.android.sdk.ext.onFirstWith
 import cash.z.ecc.android.sdk.ext.safelyConvertToBigDecimal
+import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.CANCEL
 import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.CLEAR
@@ -154,7 +155,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         if (::uiModel.isInitialized) {
             twig("uiModel exists! it has pendingSend=${uiModel.pendingSend} ZEC while the sendViewModel=${sendViewModel.zatoshiAmount} zats")
             // if the model already existed, cool but let the sendViewModel be the source of truth for the amount
-            onModelUpdated(null, uiModel.copy(pendingSend = WalletZecFormmatter.toZecStringFull(sendViewModel.zatoshiAmount.coerceAtLeast(0))))
+            onModelUpdated(null, uiModel.copy(pendingSend = WalletZecFormmatter.toZecStringFull(sendViewModel.zatoshiAmount ?: Zatoshi(0L))))
         }
     }
 
@@ -278,8 +279,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         binding.buttonSendAmount.disabledIf(amount == "0")
     }
 
-    fun setAvailable(availableBalance: Long = -1L, totalBalance: Long = -1L, availableTransparentBalance: Long = -1L, unminedCount: Int = 0) {
-        val missingBalance = availableBalance < 0
+    fun setAvailable(availableBalance: Zatoshi?, totalBalance: Zatoshi?, availableTransparentBalance: Zatoshi?, unminedCount: Int = 0) {
+        val missingBalance = availableBalance == null
         val availableString = if (missingBalance) getString(R.string.home_button_send_updating) else WalletZecFormmatter.toZecStringFull(availableBalance)
         binding.textBalanceAvailable.text = availableString
         binding.textBalanceAvailable.transparentIf(missingBalance)
@@ -288,7 +289,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             goneIf(missingBalance)
             text = when {
                 unminedCount > 0 -> "(excludes $unminedCount unconfirmed ${if (unminedCount > 1) "transactions" else "transaction"})"
-                availableBalance != -1L && (availableBalance < totalBalance) -> {
+                availableBalance != null && totalBalance != null && (availableBalance.value < totalBalance.value) -> {
                     val change = WalletZecFormmatter.toZecStringFull(totalBalance - availableBalance)
                     val symbol = getString(R.string.symbol)
                     "(${getString(R.string.home_banner_expecting)} +$change $symbol)".toColoredSpan(R.color.text_light, "+$change")
@@ -296,7 +297,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 else -> getString(R.string.home_instruction_enter_amount)
             }
         }
-        binding.imageTransparentAvailable.goneIf(availableTransparentBalance <= 0)
+        binding.imageTransparentAvailable.goneIf(availableTransparentBalance == null)
     }
 
     fun setBanner(message: String = "", action: BannerAction = CLEAR) {
@@ -348,8 +349,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                         if (old.processorInfo.lastScanRange != new.processorInfo.lastScanRange) append("${innerComma()}lastScanRange=${new.processorInfo.lastScanRange}")
                         append(")")
                     }
-                    if (old.saplingBalance.availableZatoshi != new.saplingBalance.availableZatoshi) append("${maybeComma()}availableBalance=${new.saplingBalance.availableZatoshi}")
-                    if (old.saplingBalance.totalZatoshi != new.saplingBalance.totalZatoshi) append("${maybeComma()}totalBalance=${new.saplingBalance.totalZatoshi}")
+                    if (old.saplingBalance?.available != new.saplingBalance?.available) append("${maybeComma()}availableBalance=${new.saplingBalance?.available}")
+                    if (old.saplingBalance?.total != new.saplingBalance?.total) append("${maybeComma()}totalBalance=${new.saplingBalance?.total}")
                     if (old.pendingSend != new.pendingSend) append("${maybeComma()}pendingSend=${new.pendingSend}")
                     append(")")
                 }
@@ -359,7 +360,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun onSyncing(uiModel: HomeViewModel.UiModel) {
-        setAvailable()
+        setAvailable(null, null, null)
     }
 
     private fun onSynced(uiModel: HomeViewModel.UiModel) {
@@ -368,7 +369,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             onNoFunds()
         } else {
             setBanner("")
-            setAvailable(uiModel.saplingBalance.availableZatoshi, uiModel.saplingBalance.totalZatoshi, uiModel.transparentBalance.availableZatoshi, uiModel.unminedCount)
+            setAvailable(uiModel.saplingBalance?.available, uiModel.saplingBalance?.total, uiModel.transparentBalance?.available, uiModel.unminedCount)
         }
         autoShield(uiModel)
     }
@@ -392,9 +393,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             }
 
             // troubleshooting logs
-            if (uiModel.transparentBalance.availableZatoshi > 0) {
-                twig("Transparent funds are available but not enough to autoshield. Available: ${uiModel.transparentBalance.availableZatoshi.convertZatoshiToZecString(10)}  Required: ${ZcashWalletApp.instance.autoshieldThreshold.convertZatoshiToZecString(8)}")
-            } else if (uiModel.transparentBalance.totalZatoshi > 0) {
+            if ((uiModel.transparentBalance?.available?.value ?: 0) > 0) {
+                twig("Transparent funds are available but not enough to autoshield. Available: ${uiModel.transparentBalance?.available.convertZatoshiToZecString(10)}  Required: ${Zatoshi(ZcashWalletApp.instance.autoshieldThreshold).convertZatoshiToZecString(8)}")
+            } else if ((uiModel.transparentBalance?.total?.value ?: 0) > 0) {
                 twig("Transparent funds have been received but they require 10 confirmations for autoshielding.")
             } else if (!canAutoshield) {
                 twig("Could not autoshield probably because the last one occurred too recently")
@@ -437,6 +438,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 // TODO: trigger banner / balance update
                 onNoFunds()
             }
+            BannerAction.NONE -> TODO()
+            CLEAR -> TODO()
         }
     }
 
@@ -445,9 +448,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun monitorUiModelChanges() {
-        val existingAmount = sendViewModel.zatoshiAmount.coerceAtLeast(0)
+        val existingAmount = sendViewModel.zatoshiAmount ?: Zatoshi(0)
         viewModel.initializeMaybe(WalletZecFormmatter.toZecStringFull(existingAmount))
-        if (existingAmount == 0L) onClearAmount()
+        if (existingAmount.value == 0L) onClearAmount()
         viewModel.uiModels.runningReduce { old, new ->
             onModelUpdated(old, new)
             new

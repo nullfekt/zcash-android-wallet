@@ -41,6 +41,7 @@ import cash.z.ecc.android.sdk.type.AddressType
 import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.ui.base.BaseFragment
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -121,7 +122,7 @@ class SendFragment :
     private fun applyViewModel(model: SendViewModel) {
         // apply amount
         val roundedAmount =
-            WalletZecFormmatter.toZecStringFull(model.zatoshiAmount.coerceAtLeast(0L))
+            WalletZecFormmatter.toZecStringFull(model.zatoshiAmount)
         binding.textSendAmount.text = "\$$roundedAmount"
         // apply address
         binding.inputZcashAddress.setText(model.toAddress)
@@ -243,7 +244,7 @@ class SendFragment :
     override fun onResume() {
         super.onResume()
         onPrimaryClipChanged()
-        sendViewModel.synchronizer.saplingBalances.collectWith(resumedScope) {
+        sendViewModel.synchronizer.saplingBalances.filterNotNull().collectWith(resumedScope) {
             onBalanceUpdated(it)
         }
         binding.inputZcashAddress.text.toString().let {
@@ -254,8 +255,8 @@ class SendFragment :
     private fun onBalanceUpdated(balance: WalletBalance) {
 //        binding.textLayoutAmount.helperText =
 //            "You have ${WalletZecFormmatter.toZecStringFull(balance.availableZatoshi.coerceAtLeast(0L))} available"
-        maxZatoshi = (balance.availableZatoshi - ZcashSdk.MINERS_FEE_ZATOSHI).coerceAtLeast(0L)
-        availableZatoshi = balance.availableZatoshi
+        maxZatoshi = (balance.available - ZcashSdk.MINERS_FEE).value
+        availableZatoshi = balance.available.value
     }
 
     override fun onPrimaryClipChanged() {

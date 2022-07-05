@@ -20,6 +20,7 @@ import cash.z.ecc.android.sdk.db.entity.isFailedEncoding
 import cash.z.ecc.android.sdk.db.entity.isFailure
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
+import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.launchIn
@@ -144,7 +145,8 @@ class SendFinalFragment : BaseFragment<FragmentSendFinalBinding>() {
                 model.showSecondaryButton = true
             }
             else -> {
-                model.title = "${getString(R.string.send_final_sending)} ${WalletZecFormmatter.toZecStringFull(value)} ${getString(R.string.symbol)} ${getString(R.string.send_final_to)}\n${toAddress.toAbbreviatedAddress()}"
+                model.title = "${getString(R.string.send_final_sending)} ${WalletZecFormmatter.toZecStringFull(
+                    Zatoshi(value))} ${getString(R.string.symbol)} ${getString(R.string.send_final_to)}\n${toAddress.toAbbreviatedAddress()}"
                 model.showProgress = true
                 if (isCreating()) {
                     model.showCloseIcon = false

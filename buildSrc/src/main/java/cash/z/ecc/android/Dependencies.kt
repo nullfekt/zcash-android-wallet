@@ -83,7 +83,7 @@ object Deps {
     object Zcash {
         const val ANDROID_WALLET_PLUGINS =   "cash.z.ecc.android:zcash-android-wallet-plugins:1.0.0"
         const val KOTLIN_BIP39 =             "cash.z.ecc.android:kotlin-bip39:1.0.1"
-        const val SDK =                      "cash.z.ecc.android:zcash-android-sdk:1.5.0-beta01"
+        const val SDK =                      "cash.z.ecc.android:zcash-android-sdk:1.7.0-beta01"
     }
     object Misc {
         const val LOTTIE =                   "com.airbnb.android:lottie:3.7.0"

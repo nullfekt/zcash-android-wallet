@@ -31,6 +31,7 @@ import cash.z.ecc.android.sdk.db.entity.isFailedSubmit
 import cash.z.ecc.android.sdk.db.entity.isMined
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk
+import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.type.AddressType
 import cash.z.ecc.android.ui.util.INCLUDE_MEMO_PREFIX_STANDARD
@@ -62,7 +63,7 @@ class SendViewModel @Inject constructor() : ViewModel() {
     var fromAddress: String = ""
     var toAddress: String = ""
     var memo: String = ""
-    var zatoshiAmount: Long = -1L
+    var zatoshiAmount: Zatoshi? = null
     var includeFromAddress: Boolean = false
         set(value) {
             require(!value || (value && !fromAddress.isNullOrEmpty())) {
@@ -86,7 +87,7 @@ class SendViewModel @Inject constructor() : ViewModel() {
         reportUserInputIssues(memoToSend)
         return synchronizer.sendToAddress(
             keys[0],
-            zatoshiAmount,
+            zatoshiAmount!!,
             toAddress,
             memoToSend.chunked(ZcashSdk.MAX_MEMO_SIZE).firstOrNull() ?: ""
         ).onEach {
@@ -118,7 +119,7 @@ class SendViewModel @Inject constructor() : ViewModel() {
             synchronizer.validateAddress(toAddress).isNotValid -> {
                 emit(context.getString(R.string.send_validation_error_address_invalid))
             }
-            zatoshiAmount < 1 -> {
+            zatoshiAmount?.let { it.value < 1L } ?: false -> {
                 emit(context.getString(R.string.send_validation_error_amount_minimum))
             }
             availableZatoshi == null -> {
@@ -127,11 +128,12 @@ class SendViewModel @Inject constructor() : ViewModel() {
             availableZatoshi == 0L -> {
                 emit(context.getString(R.string.send_validation_error_no_available_funds))
             }
-            availableZatoshi > 0 && availableZatoshi < ZcashSdk.MINERS_FEE_ZATOSHI -> {
+            availableZatoshi > 0 && availableZatoshi.let { it < ZcashSdk.MINERS_FEE.value } ?: false -> {
                 emit(context.getString(R.string.send_validation_error_dust))
             }
-            maxZatoshi != null && zatoshiAmount > maxZatoshi -> {
-                emit(context.getString(R.string.send_validation_error_too_much, WalletZecFormmatter.toZecStringFull(maxZatoshi), ZcashWalletApp.instance.getString(R.string.symbol)))
+            maxZatoshi != null && zatoshiAmount?.let { it.value > maxZatoshi } ?: false -> {
+                emit(context.getString(R.string.send_validation_error_too_much,
+                    WalletZecFormmatter.toZecStringFull(Zatoshi((maxZatoshi))), ZcashWalletApp.instance.getString(R.string.symbol)))
             }
             createMemoToSend().length > ZcashSdk.MAX_MEMO_SIZE -> {
                 emit(context.getString(R.string.send_validation_error_memo_length, ZcashSdk.MAX_MEMO_SIZE))
@@ -151,7 +153,7 @@ class SendViewModel @Inject constructor() : ViewModel() {
         fromAddress = ""
         toAddress = ""
         memo = ""
-        zatoshiAmount = -1L
+        zatoshiAmount = null
         includeFromAddress = false
     }
 
@@ -183,9 +185,9 @@ class SendViewModel @Inject constructor() : ViewModel() {
     private fun reportUserInputIssues(memoToSend: String) {
         if (toAddress == fromAddress) feedback.report(Issue.SelfSend)
         when {
-            zatoshiAmount < ZcashSdk.MINERS_FEE_ZATOSHI -> feedback.report(Issue.TinyAmount)
-            zatoshiAmount < 100 -> feedback.report(Issue.MicroAmount)
-            zatoshiAmount == 1L -> feedback.report(Issue.MinimumAmount)
+            (zatoshiAmount?.value ?: 0L) < ZcashSdk.MINERS_FEE.value -> feedback.report(Issue.TinyAmount)
+            (zatoshiAmount?.value ?: 0L) < 100L -> feedback.report(Issue.MicroAmount)
+            (zatoshiAmount ?: 0L) == 1L -> feedback.report(Issue.MinimumAmount)
         }
         memoToSend.length.also {
             when {

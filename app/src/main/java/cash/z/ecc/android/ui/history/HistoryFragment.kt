@@ -24,6 +24,7 @@ import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
 import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.util.twig
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
@@ -51,22 +52,22 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
     override fun onResume() {
         twig("HistoryFragment.onResume")
         super.onResume()
-        viewModel.balance.collectWith(resumedScope) {
+        viewModel.balance.filterNotNull().collectWith(resumedScope) {
             onBalanceUpdated(it)
         }
         viewModel.transactions.collectWith(resumedScope) { onTransactionsUpdated(it) }
     }
 
     private fun onBalanceUpdated(balance: WalletBalance) {
-        if (balance.availableZatoshi < 0) {
+        if (balance.available.value < 0) {
             binding.textBalanceAvailable.text = "Updating"
             return
         }
 
-        binding.textBalanceAvailable.text = WalletZecFormmatter.toZecStringShort(balance.availableZatoshi)
+        binding.textBalanceAvailable.text = WalletZecFormmatter.toZecStringShort(balance.available)
         val change = balance.pending
         binding.textBalanceDescription.apply {
-            goneIf(change <= 0L)
+            goneIf(change.value <= 0L)
             val changeString = WalletZecFormmatter.toZecStringFull(change)
             val expecting = R.string.home_banner_expecting.toAppString(true)
             val symbol = getString(R.string.symbol)

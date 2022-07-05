@@ -4,7 +4,7 @@ pluginManagement {
     }
 
     plugins {
-        id("com.github.ben-manes.versions") version("0.39.0") apply(false)
+        id("com.github.ben-manes.versions") version ("0.39.0") apply (false)
     }
 }
 
@@ -18,7 +18,7 @@ dependencyResolutionManagement {
         maven("https://jitpack.io")
         jcenter()
         // Uncomment to use a snapshot version of the SDK, e.g. when the SDK version ends in -SNAPSHOT
-        // maven("https://oss.sonatype.org/content/repositories/snapshots") {
+        //maven("https://oss.sonatype.org/content/repositories/snapshots") {
         //    if (isRepoRestrictionEnabled) {
         //        content {
         //            includeGroup("cash.z.ecc.android")
@@ -28,7 +28,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name="ecc-wallet"
+rootProject.name = "ecc-wallet"
 
 includeBuild("build-convention")
 

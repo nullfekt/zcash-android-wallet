@@ -1,7 +1,6 @@
 package cash.z.ecc.android.ui.home
 
 import androidx.lifecycle.ViewModel
-import cash.z.ecc.android.ext.pending
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.block.CompactBlockProcessor
@@ -10,10 +9,10 @@ import cash.z.ecc.android.sdk.db.entity.isMined
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
+import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.type.WalletBalance
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combineTransform
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class BalanceDetailViewModel @Inject constructor() : ViewModel() {
@@ -53,40 +52,40 @@ class BalanceDetailViewModel @Inject constructor() : ViewModel() {
         }
 
     data class BalanceModel(
-        val shieldedBalance: WalletBalance = WalletBalance(),
-        val transparentBalance: WalletBalance = WalletBalance(),
+        val shieldedBalance: WalletBalance?,
+        val transparentBalance: WalletBalance?,
         var showAvailable: Boolean = false
     ) {
         /** Whether to make calculations based on total or available zatoshi */
 
-        val canAutoShield: Boolean = transparentBalance.availableZatoshi > ZcashSdk.MINERS_FEE_ZATOSHI
+        val canAutoShield: Boolean = (transparentBalance?.available?.value ?: 0L) > ZcashSdk.MINERS_FEE.value
 
         val balanceShielded: String
             get() {
-                return if (showAvailable) shieldedBalance.availableZatoshi.toDisplay()
-                else shieldedBalance.totalZatoshi.toDisplay()
+                return if (showAvailable) shieldedBalance?.available.toDisplay()
+                else shieldedBalance?.total.toDisplay()
             }
 
         val balanceTransparent: String
             get() {
-                return if (showAvailable) transparentBalance.availableZatoshi.toDisplay()
-                else transparentBalance.totalZatoshi.toDisplay()
+                return if (showAvailable) transparentBalance?.available.toDisplay()
+                else transparentBalance?.total.toDisplay()
             }
 
         val balanceTotal: String
             get() {
-                return if (showAvailable) (shieldedBalance.availableZatoshi + transparentBalance.availableZatoshi).toDisplay()
-                else (shieldedBalance.totalZatoshi + transparentBalance.totalZatoshi).toDisplay()
+                return if (showAvailable) ((shieldedBalance?.available ?: Zatoshi(0)) + (transparentBalance?.available ?: Zatoshi(0))).toDisplay()
+                else ((shieldedBalance?.total ?: Zatoshi(0)) + (transparentBalance?.total ?: Zatoshi(0))).toDisplay()
             }
 
         val paddedShielded get() = pad(balanceShielded)
         val paddedTransparent get() = pad(balanceTransparent)
         val paddedTotal get() = pad(balanceTotal)
         val maxLength get() = maxOf(balanceShielded.length, balanceTransparent.length, balanceTotal.length)
-        val hasPending = shieldedBalance.availableZatoshi != shieldedBalance.totalZatoshi ||
-            transparentBalance.availableZatoshi != transparentBalance.totalZatoshi
-        private fun Long.toDisplay(): String {
-            return convertZatoshiToZecString(8, 8)
+        val hasPending = (null != shieldedBalance && shieldedBalance.available != shieldedBalance.total) ||
+            (null != transparentBalance && transparentBalance.available != transparentBalance.total)
+        private fun Zatoshi?.toDisplay(): String {
+            return this?.convertZatoshiToZecString(8, 8) ?: "0"
         }
 
         private fun pad(balance: String): String {
@@ -100,11 +99,7 @@ class BalanceDetailViewModel @Inject constructor() : ViewModel() {
         }
 
         fun hasData(): Boolean {
-            val default = WalletBalance()
-            return shieldedBalance.availableZatoshi != default.availableZatoshi ||
-                shieldedBalance.totalZatoshi != default.totalZatoshi ||
-                shieldedBalance.availableZatoshi != default.availableZatoshi ||
-                shieldedBalance.totalZatoshi != default.totalZatoshi
+            return shieldedBalance != null || transparentBalance != null
         }
     }
 
@@ -115,12 +110,12 @@ class BalanceDetailViewModel @Inject constructor() : ViewModel() {
     ) {
         val pendingUnconfirmed = pending.filter { it.isSubmitSuccess() && it.isMined() && !it.isConfirmed(info.lastScannedHeight) }
         val pendingUnmined = pending.filter { it.isSubmitSuccess() && !it.isMined() }
-        val pendingShieldedBalance = balances.shieldedBalance.pending
-        val pendingTransparentBalance = balances.transparentBalance.pending
+        val pendingShieldedBalance = balances.shieldedBalance?.pending
+        val pendingTransparentBalance = balances.transparentBalance?.pending
         val hasUnconfirmed = pendingUnconfirmed.isNotEmpty()
         val hasUnmined = pendingUnmined.isNotEmpty()
-        val hasPendingShieldedBalance = pendingShieldedBalance > 0L
-        val hasPendingTransparentBalance = pendingTransparentBalance > 0L
+        val hasPendingShieldedBalance = (pendingShieldedBalance?.value ?: 0L) > 0L
+        val hasPendingTransparentBalance = (pendingTransparentBalance?.value ?: 0L) > 0L
         val missingBlocks = (info.networkBlockHeight - info.lastScannedHeight).coerceAtLeast(0)
 
         private fun PendingTransaction.isConfirmed(networkBlockHeight: Int): Boolean {
