@@ -9,8 +9,8 @@ import cash.z.ecc.android.sdk.Initializer
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.db.entity.PendingTransaction
 import cash.z.ecc.android.sdk.ext.ZcashSdk
+import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.tool.DerivationTool
-import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach

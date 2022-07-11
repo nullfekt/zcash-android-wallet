@@ -37,8 +37,8 @@ import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.collectWith
 import cash.z.ecc.android.sdk.ext.onFirstWith
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
+import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.type.AddressType
-import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.ui.base.BaseFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull

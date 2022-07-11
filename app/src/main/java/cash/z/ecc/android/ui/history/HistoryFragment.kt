@@ -21,7 +21,7 @@ import cash.z.ecc.android.feedback.Report.Tap.HISTORY_BACK
 import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
 import cash.z.ecc.android.sdk.ext.collectWith
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
-import cash.z.ecc.android.sdk.type.WalletBalance
+import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.filterNotNull

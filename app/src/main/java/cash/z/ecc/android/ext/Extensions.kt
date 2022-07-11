@@ -3,8 +3,8 @@ package cash.z.ecc.android.ext
 import android.content.Context
 import android.os.Build
 import androidx.fragment.app.Fragment
+import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.model.Zatoshi
-import cash.z.ecc.android.sdk.type.WalletBalance
 import cash.z.ecc.android.util.Bush
 import cash.z.ecc.android.util.Twig
 import cash.z.ecc.android.util.twig
