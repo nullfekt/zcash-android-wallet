@@ -8,7 +8,7 @@ import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.util.Bush
 import cash.z.ecc.android.util.Twig
 import cash.z.ecc.android.util.twig
-import java.util.Locale
+import java.util.*
 import kotlin.math.roundToInt
 
 /**
@@ -30,8 +30,6 @@ fun <T> String.distribute(chunks: Int, block: (Int, String) -> T) {
         block(i, part)
     }
 }
-
-fun Boolean.asString(ifTrue: String = "", ifFalse: String = "") = if (this) ifTrue else ifFalse
 
 inline val WalletBalance.pending: Zatoshi
     get() = (this.total - this.available)

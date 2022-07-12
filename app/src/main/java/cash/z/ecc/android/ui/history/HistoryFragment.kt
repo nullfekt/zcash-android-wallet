@@ -10,12 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentHistoryBinding
 import cash.z.ecc.android.di.viewmodel.activityViewModel
-import cash.z.ecc.android.ext.WalletZecFormmatter
-import cash.z.ecc.android.ext.goneIf
-import cash.z.ecc.android.ext.onClickNavUp
-import cash.z.ecc.android.ext.pending
-import cash.z.ecc.android.ext.toAppString
-import cash.z.ecc.android.ext.toColoredSpan
+import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.HISTORY_BACK
 import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
@@ -33,8 +28,6 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
     private val viewModel: HistoryViewModel by activityViewModel()
 
     private lateinit var transactionAdapter: TransactionAdapter<ConfirmedTransaction>
-
-    private var isInitialized = false
 
     override fun inflate(inflater: LayoutInflater): FragmentHistoryBinding =
         FragmentHistoryBinding.inflate(inflater)
@@ -100,18 +93,6 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
                 // tricky: for now, explicitly fail (cast exception) if the transactions are not in a PagedList. Otherwise, this would silently fail to show items and be hard to debug if we're ever passed a non-empty list that isn't an instance of PagedList. This awkwardness will go away when we switch to Paging3
                 transactionAdapter.submitList(transactions as PagedList<ConfirmedTransaction>)
             }
-        }
-    }
-
-    private fun scrollToTop() {
-        twig("scrolling to the top")
-        binding.recyclerTransactions.apply {
-            postDelayed(
-                {
-                    smoothScrollToPosition(0)
-                },
-                5L
-            )
         }
     }
 

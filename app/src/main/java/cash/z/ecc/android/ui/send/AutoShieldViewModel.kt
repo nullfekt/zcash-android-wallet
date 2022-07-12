@@ -3,7 +3,6 @@ package cash.z.ecc.android.ui.send
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.ext.Const
-import cash.z.ecc.android.ext.pending
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.db.entity.PendingTransaction

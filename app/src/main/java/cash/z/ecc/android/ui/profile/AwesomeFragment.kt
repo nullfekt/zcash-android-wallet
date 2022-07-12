@@ -14,18 +14,9 @@ import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.distribute
 import cash.z.ecc.android.ext.invisibleIf
 import cash.z.ecc.android.ext.onClickNavBack
-import cash.z.ecc.android.ext.pending
 import cash.z.ecc.android.feedback.Report
-import cash.z.ecc.android.feedback.Report.Tap.AWESOME_CLOSE
-import cash.z.ecc.android.feedback.Report.Tap.AWESOME_SHIELD
-import cash.z.ecc.android.feedback.Report.Tap.COPY_TRANSPARENT_ADDRESS
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
-import cash.z.ecc.android.sdk.db.entity.isCancelled
-import cash.z.ecc.android.sdk.db.entity.isCreated
-import cash.z.ecc.android.sdk.db.entity.isCreating
-import cash.z.ecc.android.sdk.db.entity.isFailedEncoding
-import cash.z.ecc.android.sdk.db.entity.isFailure
-import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
+import cash.z.ecc.android.feedback.Report.Tap.*
+import cash.z.ecc.android.sdk.db.entity.*
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.model.Zatoshi
@@ -144,11 +135,6 @@ class AwesomeFragment : BaseFragment<FragmentAwesomeBinding>() {
             Toast.makeText(requireContext(), "No balance to shield!", Toast.LENGTH_SHORT).show()
         }
     }
-
-//    private fun onDoneAction() {
-//        mainActivity?.popBackTo(R.id.nav_home)
-//        mainActivity?.safeNavigate(R.id.action_nav_send_final_to_nav_history)
-//    }
 
     private fun onDoneAction() {
         viewModel.setEasterEggTriggered()
