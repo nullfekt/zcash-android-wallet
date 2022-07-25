@@ -10,6 +10,8 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.coroutines.coroutineContext
 
+// There are deprecations with the use of BroadcastChannel
+@OptIn(ObsoleteCoroutinesApi::class)
 class Feedback(capacity: Int = 256) {
     lateinit var scope: CoroutineScope
         private set

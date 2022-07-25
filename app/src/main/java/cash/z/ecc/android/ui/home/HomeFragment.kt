@@ -61,6 +61,8 @@ import kotlinx.coroutines.flow.runningReduce
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+// There are deprecations with the use of BroadcastChannel
+@kotlinx.coroutines.ObsoleteCoroutinesApi
 class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     override val screen = Report.Screen.HOME
 

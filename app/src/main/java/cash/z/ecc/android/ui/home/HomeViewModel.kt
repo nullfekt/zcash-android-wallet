@@ -29,6 +29,8 @@ import kotlinx.coroutines.flow.scan
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
+// There are deprecations with the use of BroadcastChannel
+@kotlinx.coroutines.ObsoleteCoroutinesApi
 class HomeViewModel @Inject constructor() : ViewModel() {
 
     @Inject
