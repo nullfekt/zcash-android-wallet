@@ -18,13 +18,13 @@ dependencyResolutionManagement {
         maven("https://jitpack.io")
         jcenter()
         // Uncomment to use a snapshot version of the SDK, e.g. when the SDK version ends in -SNAPSHOT
-        //maven("https://oss.sonatype.org/content/repositories/snapshots") {
-        //    if (isRepoRestrictionEnabled) {
-        //        content {
-        //            includeGroup("cash.z.ecc.android")
-        //        }
-        //    }
-        //}
+        maven("https://oss.sonatype.org/content/repositories/snapshots") {
+            if (isRepoRestrictionEnabled) {
+                content {
+                    includeGroup("cash.z.ecc.android")
+                }
+            }
+        }
     }
 }
 

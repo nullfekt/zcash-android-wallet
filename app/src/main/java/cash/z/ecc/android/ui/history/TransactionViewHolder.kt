@@ -76,7 +76,7 @@ class TransactionViewHolder<T : ConfirmedTransaction>(itemView: View) : Recycler
                                     R.string.transaction_status_pending
                                 )
                             // TODO: this logic works but is sloppy. Find a more robust solution to displaying information about expiration (such as expires in 1 block, etc). Then if it is way beyond expired, remove it entirely. Perhaps give the user a button for that (swipe to dismiss?)
-                            if (!isMined && (expiryHeight != null) && (expiryHeight!! < mainActivity.latestHeight ?: -1)) lineTwo =
+                            if (!isMined && (expiryHeight != null) && (expiryHeight!! < mainActivity.latestHeight?.value ?: -1)) lineTwo =
                                 str(R.string.transaction_status_expired)
                             amountDisplay = "- $amountZec"
                             if (isMined) {

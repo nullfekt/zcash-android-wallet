@@ -1,6 +1,7 @@
 package cash.z.ecc.android.feedback
 
 import cash.z.ecc.android.ZcashWalletApp
+import cash.z.ecc.android.sdk.model.BlockHeight
 
 object Report {
 
@@ -56,7 +57,7 @@ object Report {
 
     object Error {
         object NonFatal {
-            class Reorg(errorBlockHeight: Int, rewindBlockHeight: Int) : Feedback.AppError(
+            class Reorg(errorBlockHeight: BlockHeight, rewindBlockHeight: BlockHeight) : Feedback.AppError(
                 "reorg",
                 "Chain error detected at height $errorBlockHeight, rewinding to $rewindBlockHeight",
                 false,

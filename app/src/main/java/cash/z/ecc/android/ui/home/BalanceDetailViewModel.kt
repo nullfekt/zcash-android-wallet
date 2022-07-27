@@ -9,6 +9,7 @@ import cash.z.ecc.android.sdk.db.entity.isMined
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
+import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.model.Zatoshi
 import kotlinx.coroutines.flow.Flow
@@ -116,15 +117,17 @@ class BalanceDetailViewModel @Inject constructor() : ViewModel() {
         val hasUnmined = pendingUnmined.isNotEmpty()
         val hasPendingShieldedBalance = (pendingShieldedBalance?.value ?: 0L) > 0L
         val hasPendingTransparentBalance = (pendingTransparentBalance?.value ?: 0L) > 0L
-        val missingBlocks = (info.networkBlockHeight - info.lastScannedHeight).coerceAtLeast(0)
+        val missingBlocks = ((info.networkBlockHeight?.value ?: 0) - (info.lastScannedHeight?.value ?: 0)).coerceAtLeast(0)
 
-        private fun PendingTransaction.isConfirmed(networkBlockHeight: Int): Boolean {
-            return isMined() && (networkBlockHeight - minedHeight + 1) > 10 // fix: plus 1 because the mined block counts as the FIRST confirmation
+        private fun PendingTransaction.isConfirmed(networkBlockHeight: BlockHeight?): Boolean {
+            return networkBlockHeight?.let {
+                 isMined() && (it.value - minedHeight + 1) > 10 // fix: plus 1 because the mined block counts as the FIRST confirmation
+            } ?: false
         }
 
         fun remainingConfirmations(confirmationsRequired: Int = 10) =
             pendingUnconfirmed
-                .map { confirmationsRequired - (info.lastScannedHeight - it.minedHeight + 1) } // fix: plus 1 because the mined block counts as the FIRST confirmation
+                .map { confirmationsRequired - ((info.lastScannedHeight?.value ?: -1) - it.minedHeight + 1) } // fix: plus 1 because the mined block counts as the FIRST confirmation
                 .filter { it > 0 }
                 .sortedDescending()
     }

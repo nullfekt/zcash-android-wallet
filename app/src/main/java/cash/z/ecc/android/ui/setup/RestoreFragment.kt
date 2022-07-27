@@ -27,6 +27,7 @@ import cash.z.ecc.android.feedback.Report.Tap.RESTORE_BACK
 import cash.z.ecc.android.feedback.Report.Tap.RESTORE_CLEAR
 import cash.z.ecc.android.feedback.Report.Tap.RESTORE_DONE
 import cash.z.ecc.android.feedback.Report.Tap.RESTORE_SUCCESS
+import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.ui.base.BaseFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tylersuehr.chips.Chip
@@ -133,18 +134,18 @@ class RestoreFragment : BaseFragment<FragmentRestoreBinding>(), View.OnKeyListen
         }
         var birthday = binding.root.findViewById<TextView>(R.id.input_birthdate).text.toString()
             .let { birthdateString ->
-                if (birthdateString.isNullOrEmpty()) activation else birthdateString.toInt()
-            }.coerceAtLeast(activation)
+                if (birthdateString.isNullOrEmpty()) activation.value else birthdateString.toLong()
+            }.coerceAtLeast(activation.value)
 
         try {
             walletSetup.validatePhrase(seedPhrase)
-            importWallet(seedPhrase, birthday)
+            importWallet(seedPhrase, BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, birthday))
         } catch (t: Throwable) {
             mainActivity?.showInvalidSeedPhraseError(t)
         }
     }
 
-    private fun importWallet(seedPhrase: String, birthday: Int) {
+    private fun importWallet(seedPhrase: String, birthday: BlockHeight?) {
         mainActivity?.reportFunnel(Restore.ImportStarted)
         mainActivity?.hideKeyboard()
         mainActivity?.apply {

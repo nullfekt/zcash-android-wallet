@@ -21,7 +21,9 @@ import cash.z.ecc.android.feedback.Report.Tap.BACKUP_DONE
 import cash.z.ecc.android.feedback.Report.Tap.BACKUP_VERIFY
 import cash.z.ecc.android.feedback.measure
 import cash.z.ecc.android.lockbox.LockBox
+import cash.z.ecc.android.sdk.db.entity.Block
 import cash.z.ecc.android.sdk.ext.ZcashSdk
+import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.SEED_WITH_BACKUP
 import cash.z.ecc.android.ui.util.AddressPartNumberSpan
@@ -91,23 +93,25 @@ class BackupFragment : BaseFragment<FragmentBackupBinding>() {
     }
 
     // TODO: move this into the SDK
-    private suspend fun calculateBirthday(): Int {
-        var storedBirthday = 0
-        var oldestTransactionHeight = 0
-        var activationHeight = 0
+    private suspend fun calculateBirthday(): BlockHeight {
+        var storedBirthday: BlockHeight? = null
+        var oldestTransactionHeight: BlockHeight? = null
+        var activationHeight: BlockHeight? = null
         try {
-            activationHeight = mainActivity?.synchronizerComponent?.synchronizer()?.network?.saplingActivationHeight ?: 0
-            storedBirthday = walletSetup.loadBirthdayHeight() ?: 0
-            oldestTransactionHeight = mainActivity?.synchronizerComponent?.synchronizer()?.receivedTransactions?.first()?.last()?.minedHeight ?: 0
+            activationHeight = mainActivity?.synchronizerComponent?.synchronizer()?.network?.saplingActivationHeight
+            storedBirthday = walletSetup.loadBirthdayHeight()
+            oldestTransactionHeight = mainActivity?.synchronizerComponent?.synchronizer()?.receivedTransactions?.first()?.last()?.minedHeight?.let {
+                BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it)
+            }
             // to be safe adjust for reorgs (and generally a little cushion is good for privacy)
             // so we round down to the nearest 100 and then subtract 100 to ensure that the result is always at least 100 blocks away
             oldestTransactionHeight = ZcashSdk.MAX_REORG_SIZE.let { boundary ->
-                oldestTransactionHeight.let { it - it.rem(boundary) - boundary }
+                oldestTransactionHeight?.let { it.value - it.value.rem(boundary) - boundary }?.let { BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it) }
             }
         } catch (t: Throwable) {
             twig("failed to calculate birthday due to: $t")
         }
-        return maxOf(storedBirthday, oldestTransactionHeight, activationHeight)
+        return listOfNotNull(storedBirthday, oldestTransactionHeight, activationHeight).maxBy { it.value }
     }
 
     private fun onEnterWallet(showMessage: Boolean = !this.hasBackUp) {

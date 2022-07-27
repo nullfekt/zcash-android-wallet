@@ -24,6 +24,7 @@ import cash.z.ecc.android.feedback.Report.Tap.LANDING_BACKUP_SKIPPED_2
 import cash.z.ecc.android.feedback.Report.Tap.LANDING_BACKUP_SKIPPED_3
 import cash.z.ecc.android.feedback.Report.Tap.LANDING_NEW
 import cash.z.ecc.android.feedback.Report.Tap.LANDING_RESTORE
+import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.sdk.type.ZcashNetwork
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.SEED_WITHOUT_BACKUP
@@ -134,17 +135,17 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
     // AKA import wallet
     private fun onUseDevWallet() {
         val seedPhrase: String
-        val birthday: Int
+        val birthday: BlockHeight
 
         // new testnet dev wallet
         when (ZcashWalletApp.instance.defaultNetwork) {
             ZcashNetwork.Mainnet -> {
                 seedPhrase = "still champion voice habit trend flight survey between bitter process artefact blind carbon truly provide dizzy crush flush breeze blouse charge solid fish spread"
-                birthday = 991645 // 663174
+                birthday = BlockHeight.new(ZcashNetwork.Mainnet, 991645) // 663174
             }
             ZcashNetwork.Testnet -> {
                 seedPhrase = "quantum whisper lion route fury lunar pelican image job client hundred sauce chimney barely life cliff spirit admit weekend message recipe trumpet impact kitten"
-                birthday = 1330190
+                birthday = BlockHeight.new(ZcashNetwork.Testnet, 1330190)
             }
             else -> throw RuntimeException("No developer wallet exists for network ${ZcashWalletApp.instance.defaultNetwork}")
         }

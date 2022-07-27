@@ -120,7 +120,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
     data class UiModel(
         val status: Synchronizer.Status = DISCONNECTED,
-        val processorInfo: CompactBlockProcessor.ProcessorInfo = CompactBlockProcessor.ProcessorInfo(),
+        val processorInfo: CompactBlockProcessor.ProcessorInfo = CompactBlockProcessor.ProcessorInfo(null, null, null, null, null),
         val orchardBalance: WalletBalance?,
         val saplingBalance: WalletBalance?,
         val transparentBalance: WalletBalance?,
@@ -141,11 +141,11 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         val isDisconnected = status == DISCONNECTED
         val downloadProgress: Int get() {
             return processorInfo.run {
-                if (lastDownloadRange.isEmpty()) {
+                if (lastDownloadRange?.isEmpty() == true) {
                     100
                 } else {
                     val progress =
-                        (((lastDownloadedHeight - lastDownloadRange.first + 1).coerceAtLeast(0).toFloat() / (lastDownloadRange.last - lastDownloadRange.first + 1)) * 100.0f).coerceAtMost(
+                        ((((lastDownloadedHeight?.value ?: 0) - (lastDownloadRange?.start?.value ?: 0) + 1).coerceAtLeast(0).toFloat() / ((lastDownloadRange?.endInclusive?.value ?: 0) - (lastDownloadRange?.start?.value ?: 0) + 1)) * 100.0f).coerceAtMost(
                             100.0f
                         ).roundToInt()
                     progress
@@ -154,10 +154,10 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
         val scanProgress: Int get() {
             return processorInfo.run {
-                if (lastScanRange.isEmpty()) {
+                if (lastScanRange?.isEmpty() == true) {
                     100
                 } else {
-                    val progress = (((lastScannedHeight - lastScanRange.first + 1).coerceAtLeast(0).toFloat() / (lastScanRange.last - lastScanRange.first + 1)) * 100.0f).coerceAtMost(100.0f).roundToInt()
+                    val progress = ((((lastScannedHeight?.value ?: 0) - (lastScanRange?.start?.value ?: 0) + 1).coerceAtLeast(0).toFloat() / ((lastScanRange?.endInclusive?.value ?: 0) - (lastScanRange?.start?.value ?: 0) + 1)) * 100.0f).coerceAtMost(100.0f).roundToInt()
                     progress
                 }
             }

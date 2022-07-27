@@ -78,7 +78,7 @@ class HistoryViewModel @Inject constructor() : ViewModel() {
                 tx != null && tx.toAddress.isNullOrEmpty() && tx.value > 0L && tx.minedHeight > 0 -> true
                 else -> null
             }
-            isMined = tx?.minedHeight != null && tx.minedHeight > synchronizer.network.saplingActivationHeight
+            isMined = tx?.minedHeight != null && tx.minedHeight > synchronizer.network.saplingActivationHeight.value
             topValue = if (tx == null) "" else "\$${WalletZecFormmatter.toZecStringFull(tx.valueInZatoshi)}"
             minedHeight = String.format("%,d", tx?.minedHeight ?: 0)
             val flags =
@@ -102,7 +102,7 @@ class HistoryViewModel @Inject constructor() : ViewModel() {
             tx?.let {
                 val isMined = it.blockTimeInSeconds != 0L
                 if (isMined) {
-                    val hasLatestHeight = latestHeight != null && latestHeight > synchronizer.network.saplingActivationHeight
+                    val hasLatestHeight = latestHeight != null && latestHeight > synchronizer.network.saplingActivationHeight.value
                     if (it.minedHeight > 0 && hasLatestHeight) {
                         val confirmations = latestHeight!! - it.minedHeight + 1
                         confirmation = if (confirmations >= 10) getString(R.string.transaction_status_confirmed) else "$confirmations ${getString(
@@ -165,7 +165,7 @@ class HistoryViewModel @Inject constructor() : ViewModel() {
     private fun isSufficientlyOld(tx: ConfirmedTransaction): Boolean {
         val threshold = 75 * 1000 * 25 // approx 25 blocks
         val delta = System.currentTimeMillis() / 1000L - tx.blockTimeInSeconds
-        return tx.minedHeight > synchronizer.network.saplingActivationHeight &&
+        return tx.minedHeight > synchronizer.network.saplingActivationHeight.value &&
             delta < threshold
     }
 }

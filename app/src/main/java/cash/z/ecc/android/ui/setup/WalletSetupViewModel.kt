@@ -10,14 +10,11 @@ import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Initializer
 import cash.z.ecc.android.sdk.exception.InitializerException
+import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.sdk.tool.DerivationTool
-import cash.z.ecc.android.sdk.tool.WalletBirthdayTool
 import cash.z.ecc.android.sdk.type.UnifiedViewingKey
-import cash.z.ecc.android.sdk.type.WalletBirthday
 import cash.z.ecc.android.sdk.type.ZcashNetwork
-import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.NO_SEED
-import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.SEED_WITHOUT_BACKUP
-import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.SEED_WITH_BACKUP
+import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.*
 import cash.z.ecc.android.util.twig
 import cash.z.ecc.kotlin.mnemonic.Mnemonics
 import com.bugsnag.android.Bugsnag
@@ -62,10 +59,13 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
         mnemonics.validate(seedPhrase.toCharArray())
     }
 
-    fun loadBirthdayHeight(): Int? {
+    fun loadBirthdayHeight(): BlockHeight? {
         val h: Int? = lockBox[Const.Backup.BIRTHDAY_HEIGHT]
         twig("Loaded birthday with key ${Const.Backup.BIRTHDAY_HEIGHT} and found $h")
-        return h
+        h?.let {
+            return BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it.toLong())
+        }
+        return null
     }
 
     suspend fun newWallet(): Initializer {
@@ -77,10 +77,10 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
         return openStoredWallet()
     }
 
-    suspend fun importWallet(seedPhrase: String, birthdayHeight: Int): Initializer {
+    suspend fun importWallet(seedPhrase: String, birthdayHeight: BlockHeight?): Initializer {
         val network = ZcashWalletApp.instance.defaultNetwork
         twig("Importing ${network.networkName} wallet. Requested birthday: $birthdayHeight")
-        storeWallet(seedPhrase.toCharArray(), network, loadNearestBirthday(network, birthdayHeight))
+        storeWallet(seedPhrase.toCharArray(), network, birthdayHeight ?: loadNearestBirthday(network))
         return openStoredWallet()
     }
 
@@ -167,16 +167,15 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
             }
     }
 
-    private suspend fun onMissingBirthday(network: ZcashNetwork): Int = failWith(InitializerException.MissingBirthdayException) {
+    private suspend fun onMissingBirthday(network: ZcashNetwork): BlockHeight = failWith(InitializerException.MissingBirthdayException) {
         twig("Recover Birthday: falling back to sapling birthday")
-        loadNearestBirthday(network, network.saplingActivationHeight).height
+        loadNearestBirthday(network)
     }
 
-    private suspend fun loadNearestBirthday(network: ZcashNetwork, birthdayHeight: Int? = null) =
-        WalletBirthdayTool.loadNearest(
+    private suspend fun loadNearestBirthday(network: ZcashNetwork) =
+        BlockHeight.ofLatestCheckpoint(
             ZcashWalletApp.instance,
             network,
-            birthdayHeight
         )
 
     //
@@ -192,7 +191,7 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
     private suspend fun storeWallet(
         seedPhraseChars: CharArray,
         network: ZcashNetwork,
-        birthday: WalletBirthday
+        birthday: BlockHeight
     ) {
         check(!lockBox.getBoolean(Const.Backup.HAS_SEED)) {
             "Error! Cannot store a seed when one already exists! This would overwrite the" +
@@ -210,9 +209,9 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private suspend fun storeBirthday(birthday: WalletBirthday) = withContext(IO) {
-        twig("Storing birthday ${birthday.height} with and key ${Const.Backup.BIRTHDAY_HEIGHT}")
-        lockBox[Const.Backup.BIRTHDAY_HEIGHT] = birthday.height
+    private suspend fun storeBirthday(birthday: BlockHeight) = withContext(IO) {
+        twig("Storing birthday ${birthday.value} with and key ${Const.Backup.BIRTHDAY_HEIGHT}")
+        lockBox[Const.Backup.BIRTHDAY_HEIGHT] = birthday.value
     }
 
     private suspend fun storeSeedPhrase(seedPhrase: CharArray) = withContext(IO) {

@@ -10,6 +10,7 @@ import cash.z.ecc.android.sdk.db.entity.isMined
 import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
+import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.tool.DerivationTool
@@ -49,8 +50,10 @@ class AutoShieldViewModel @Inject constructor() : ViewModel() {
         emit(StatusModel(unmined, unconfirmed, pending, info.networkBlockHeight))
     }
 
-    private fun PendingTransaction.isConfirmed(networkBlockHeight: Int): Boolean {
-        return isMined() && (networkBlockHeight - minedHeight + 1) > 10
+    private fun PendingTransaction.isConfirmed(networkBlockHeight: BlockHeight?): Boolean {
+        return networkBlockHeight?.let { height ->
+             isMined() && (height.value - minedHeight + 1) > 10
+        } ?: false
     }
 
     fun cancel(id: Long) {
@@ -129,7 +132,7 @@ class AutoShieldViewModel @Inject constructor() : ViewModel() {
         val pendingUnconfirmed: List<PendingTransaction> = listOf(),
         val pendingUnmined: List<PendingTransaction> = listOf(),
         val pendingBalance: Long = 0L,
-        val latestHeight: Int = 0,
+        val latestHeight: BlockHeight? = null,
     ) {
         val hasUnconfirmed = pendingUnconfirmed.isNotEmpty()
         val hasUnmined = pendingUnmined.isNotEmpty()

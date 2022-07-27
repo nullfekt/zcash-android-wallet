@@ -17,6 +17,7 @@ import cash.z.ecc.android.ext.toAppColor
 import cash.z.ecc.android.ext.toSplitColorSpan
 import cash.z.ecc.android.feedback.Report.Tap.RECEIVE_BACK
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
+import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.home.BalanceDetailViewModel.StatusModel
 import kotlinx.coroutines.flow.launchIn
@@ -26,7 +27,7 @@ import kotlinx.coroutines.launch
 class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
 
     private val viewModel: BalanceDetailViewModel by viewModel()
-    private var lastSignal = -1
+    private var lastSignal: BlockHeight? = null
 
     override fun inflate(inflater: LayoutInflater): FragmentBalanceDetailBinding =
         FragmentBalanceDetailBinding.inflate(inflater)
@@ -127,7 +128,7 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
             binding.textBlockHeight.text = String.format("%,d", status.info.lastScannedHeight) + " of " + String.format("%,d", status.info.networkBlockHeight)
         } else {
             status.info.lastScannedHeight.let { height ->
-                if (height < 1) {
+                if (height == null) {
                     binding.textBlockHeightPrefix.text = "Processing..."
                     binding.textBlockHeight.text = ""
                 } else {
@@ -145,9 +146,9 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
         }
     }
 
-    private fun sendNewBlockSignal(currentHeight: Int) {
+    private fun sendNewBlockSignal(currentHeight: BlockHeight?) {
         // prevent a flood of signals while scanning blocks
-        if (lastSignal != -1 && currentHeight > lastSignal) {
+        if (lastSignal != null && (currentHeight?.value ?: 0) > lastSignal!!.value) {
             mainActivity?.vibrate(0, 100, 100, 300)
             Toast.makeText(mainActivity, "New block!", Toast.LENGTH_SHORT).show()
         }
@@ -199,7 +200,7 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
             if (status.contains("Awaiting")) status += " and "
             status += "$count outbound ${"transaction".plural(count)}"
             remainingConfirmations().firstOrNull()?.let { remaining ->
-                status += " with $remaining ${"confirmation".plural(remaining)} remaining"
+                status += " with $remaining ${"confirmation".plural(remaining.toInt())} remaining"
             }
         }
 
