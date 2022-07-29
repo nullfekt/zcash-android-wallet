@@ -88,7 +88,7 @@ class BackupFragment : BaseFragment<FragmentBackupBinding>() {
     override fun onResume() {
         super.onResume()
         resumedScope.launch {
-            binding.textBirtdate.text = getString(R.string.backup_format_birthday_height, calculateBirthday())
+            binding.textBirtdate.text = getString(R.string.backup_format_birthday_height, calculateBirthday().value)
         }
     }
 
