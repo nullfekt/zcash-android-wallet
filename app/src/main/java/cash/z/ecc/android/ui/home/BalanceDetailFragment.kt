@@ -125,7 +125,7 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
         binding.textStatus.text = status.toStatus()
         if (status.missingBlocks > 100) {
             binding.textBlockHeightPrefix.text = "Processing "
-            binding.textBlockHeight.text = String.format("%,d", status.info.lastScannedHeight) + " of " + String.format("%,d", status.info.networkBlockHeight)
+            binding.textBlockHeight.text = String.format("%,d", status.info.lastScannedHeight?.value ?: 0) + " of " + String.format("%,d", status.info.networkBlockHeight?.value ?: 0)
         } else {
             status.info.lastScannedHeight.let { height ->
                 if (height == null) {
@@ -133,7 +133,7 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
                     binding.textBlockHeight.text = ""
                 } else {
                     binding.textBlockHeightPrefix.text = "Balances as of block "
-                    binding.textBlockHeight.text = String.format("%,d", status.info.lastScannedHeight)
+                    binding.textBlockHeight.text = String.format("%,d", status.info.lastScannedHeight?.value ?: 0)
                     sendNewBlockSignal(status.info.lastScannedHeight)
                 }
             }
