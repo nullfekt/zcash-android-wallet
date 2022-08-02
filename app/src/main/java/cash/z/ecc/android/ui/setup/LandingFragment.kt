@@ -25,7 +25,7 @@ import cash.z.ecc.android.feedback.Report.Tap.LANDING_BACKUP_SKIPPED_3
 import cash.z.ecc.android.feedback.Report.Tap.LANDING_NEW
 import cash.z.ecc.android.feedback.Report.Tap.LANDING_RESTORE
 import cash.z.ecc.android.sdk.model.BlockHeight
-import cash.z.ecc.android.sdk.type.ZcashNetwork
+import cash.z.ecc.android.sdk.model.ZcashNetwork
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.SEED_WITHOUT_BACKUP
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.SEED_WITH_BACKUP

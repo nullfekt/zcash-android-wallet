@@ -11,9 +11,10 @@ import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Initializer
 import cash.z.ecc.android.sdk.exception.InitializerException
 import cash.z.ecc.android.sdk.model.BlockHeight
+import cash.z.ecc.android.sdk.model.LightWalletEndpoint
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.type.UnifiedViewingKey
-import cash.z.ecc.android.sdk.type.ZcashNetwork
+import cash.z.ecc.android.sdk.model.ZcashNetwork
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.*
 import cash.z.ecc.android.util.twig
 import cash.z.ecc.kotlin.mnemonic.Mnemonics
@@ -104,7 +105,7 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
 
         twig("Done loading config variables")
         return Initializer.Config {
-            it.importWallet(vk, birthdayHeight, network, host, port)
+            it.importWallet(vk, birthdayHeight, network, LightWalletEndpoint(host, port, true))
             it.setOverwriteKeys(overwriteVks)
         }
     }

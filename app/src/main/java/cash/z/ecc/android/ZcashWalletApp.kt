@@ -11,7 +11,7 @@ import cash.z.ecc.android.feedback.FeedbackCoordinator
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.internal.Twig
 import cash.z.ecc.android.sdk.model.Zatoshi
-import cash.z.ecc.android.sdk.type.ZcashNetwork
+import cash.z.ecc.android.sdk.model.ZcashNetwork
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

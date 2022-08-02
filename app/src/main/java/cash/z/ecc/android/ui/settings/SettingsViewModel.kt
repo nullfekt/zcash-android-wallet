@@ -51,17 +51,12 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     }
 
     suspend fun submit() {
-        var error: Throwable? = null
+        // Note: this only takes effect after the app is relaunched
         val host = uiModels.value.host
         val port = uiModels.value.portInt
-        synchronizer.changeServer(uiModels.value.host, uiModels.value.portInt) {
-            error = it
-        }
-        if (error == null) {
-            prefs[Const.Pref.SERVER_HOST] = host
-            prefs[Const.Pref.SERVER_PORT] = port
-        }
-        uiModels.value = uiModels.value.copy(changeError = error, complete = true)
+        prefs[Const.Pref.SERVER_HOST] = host
+        prefs[Const.Pref.SERVER_PORT] = port
+        uiModels.value = uiModels.value.copy(changeError = null, complete = true)
     }
 
     private fun onUpdateModel(kProperty: KProperty<*>, old: String, new: String) {
