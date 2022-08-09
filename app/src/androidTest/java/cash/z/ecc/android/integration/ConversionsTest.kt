@@ -2,19 +2,13 @@ package cash.z.ecc.android.integration
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import cash.z.ecc.android.ext.WalletZecFormmatter
+import cash.z.ecc.android.sdk.model.Zatoshi
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ConversionsTest {
-
-//    val formatter: WalletZecFormmatter = WalletZecFormmatter()
-
-    @Before
-    fun setUp() {
-    }
 
     @Test
     fun testToZatoshi() {
@@ -25,37 +19,37 @@ class ConversionsTest {
 
     @Test
     fun testToZecString_short() {
-        val input = 112_340_000L
+        val input = Zatoshi(112_340_000L)
         val result = WalletZecFormmatter.toZecStringShort(input)
-        Assert.assertEquals("1.123", result)
+        Assert.assertEquals("1.1234", result)
     }
 
     @Test
     fun testToZecString_shortRoundUp() {
-        val input = 112_355_600L
+        val input = Zatoshi(112_355_600L)
         val result = WalletZecFormmatter.toZecStringShort(input)
-        Assert.assertEquals("1.124", result)
+        Assert.assertEquals("1.1236", result)
     }
 
     @Test
     fun testToZecString_shortRoundDown() {
-        val input = 112_349_999L
+        val input = Zatoshi(112_343_999L)
         val result = WalletZecFormmatter.toZecStringShort(input)
-        Assert.assertEquals("1.123", result)
+        Assert.assertEquals("1.1234", result)
     }
 
     @Test
     fun testToZecString_shortRoundHalfEven() {
-        val input = 112_250_000L
+        val input = Zatoshi(112_345_000L)
         val result = WalletZecFormmatter.toZecStringShort(input)
-        Assert.assertEquals("1.122", result)
+        Assert.assertEquals("1.1234", result)
     }
 
     @Test
     fun testToZecString_shortRoundHalfOdd() {
-        val input = 112_350_000L
+        val input = Zatoshi(112_355_000L)
         val result = WalletZecFormmatter.toZecStringShort(input)
-        Assert.assertEquals("1.124", result)
+        Assert.assertEquals("1.1236", result)
     }
 
     @Test
@@ -109,35 +103,35 @@ class ConversionsTest {
 
     @Test
     fun testToZecString_full() {
-        val input = 112_341_123L
+        val input = Zatoshi(112_341_123L)
         val result = WalletZecFormmatter.toZecStringFull(input)
         Assert.assertEquals("1.12341123", result)
     }
 
     @Test
     fun testToZecString_fullRoundUp() {
-        val input = 112_355_678L
+        val input = Zatoshi(112_355_678L)
         val result = WalletZecFormmatter.toZecStringFull(input)
         Assert.assertEquals("1.12355678", result)
     }
 
     @Test
     fun testToZecString_fullRoundDown() {
-        val input = 112_349_999L
+        val input = Zatoshi(112_349_999L)
         val result = WalletZecFormmatter.toZecStringFull(input)
         Assert.assertEquals("1.12349999", result)
     }
 
     @Test
     fun testToZecString_fullRoundHalfEven() {
-        val input = 112_250_009L
+        val input = Zatoshi(112_250_009L)
         val result = WalletZecFormmatter.toZecStringFull(input)
         Assert.assertEquals("1.12250009", result)
     }
 
     @Test
     fun testToZecString_fullRoundHalfOdd() {
-        val input = 112_350_004L
+        val input = Zatoshi(112_350_004L)
         val result = WalletZecFormmatter.toZecStringFull(input)
         Assert.assertEquals("1.12350004", result)
     }

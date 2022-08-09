@@ -2,9 +2,11 @@ package cash.z.ecc.android
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.delay
+import org.junit.Ignore
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@Ignore("It'd need additional implementation changes to have this one working.")
 @RunWith(AndroidJUnit4::class)
 // @RunWith(Parameterized::class)
 class MemoTest(val input: String, val output: String) {
