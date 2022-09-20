@@ -105,9 +105,11 @@ android {
         }
     }
     packagingOptions {
-        exclude 'META-INF/AL2.0'
-        exclude 'META-INF/LGPL2.1'
+        resources {
+            excludes += ['META-INF/AL2.0', 'META-INF/LGPL2.1']
+        }
     }
+    namespace 'cash.z.ecc.android'
     applicationVariants.all { variant ->
         variant.outputs.all {
             if (variant.buildType.name == "qa") {
