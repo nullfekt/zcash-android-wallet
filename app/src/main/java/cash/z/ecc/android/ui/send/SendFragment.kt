@@ -26,12 +26,14 @@ import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.collectWith
 import cash.z.ecc.android.sdk.ext.onFirstWith
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
+import cash.z.ecc.android.sdk.model.TransactionRecipient
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.type.AddressType
 import cash.z.ecc.android.ui.base.BaseFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class SendFragment :
@@ -152,7 +154,7 @@ class SendFragment :
                 else -> R.string.send_validation_address_invalid to R.color.zcashRed
             }
             updateAddressUi(validation is AddressType.Transparent)
-            if (address == sendViewModel.synchronizer.getAddress() || address == sendViewModel.synchronizer.getTransparentAddress()) {
+            if (address == sendViewModel.synchronizer.getUnifiedAddress() || address == sendViewModel.synchronizer.getTransparentAddress()) {
                 type = R.string.send_validation_address_self to R.color.zcashRed
             }
             binding.textLayoutAddress.helperText = getString(type.first)
@@ -310,7 +312,7 @@ class SendFragment :
             if (address == null) {
                 group.gone()
             } else {
-                val userShieldedAddr = sendViewModel.synchronizer.getAddress()
+                val userShieldedAddr = sendViewModel.synchronizer.getUnifiedAddress()
                 val userTransparentAddr = sendViewModel.synchronizer.getTransparentAddress()
                 group.visible()
                 addressTextView.text = address.toAbbreviatedAddress(16, 16)
@@ -361,8 +363,13 @@ class SendFragment :
     private var lastUsedAddress: String? = null
     private suspend fun loadLastUsedAddress(): String? {
         if (lastUsedAddress == null) {
-            lastUsedAddress = sendViewModel.synchronizer.sentTransactions.first()
-                .firstOrNull { !it.toAddress.isNullOrEmpty() }?.toAddress
+            val transactionOverview = sendViewModel.synchronizer.clearedTransactions.first()
+                .firstOrNull { it.isSentTransaction } ?: return null
+
+            val sentTransaction = sendViewModel.synchronizer.getRecipients(transactionOverview)
+                .firstOrNull { it is TransactionRecipient.Address } as TransactionRecipient.Address
+
+            lastUsedAddress = sentTransaction.addressValue
             updateLastUsedBanner(lastUsedAddress, binding.imageLastUsedAddressSelected.isVisible)
         }
         return lastUsedAddress

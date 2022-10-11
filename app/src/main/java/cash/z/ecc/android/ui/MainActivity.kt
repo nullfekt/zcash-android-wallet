@@ -51,17 +51,20 @@ import cash.z.ecc.android.feedback.Report.NonUserAction.SYNC_START
 import cash.z.ecc.android.feedback.Report.Tap.COPY_ADDRESS
 import cash.z.ecc.android.feedback.Report.Tap.COPY_TRANSPARENT_ADDRESS
 import cash.z.ecc.android.sdk.SdkSynchronizer
-import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
 import cash.z.ecc.android.sdk.exception.CompactBlockProcessorException
 import cash.z.ecc.android.sdk.ext.BatchMetrics
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
 import cash.z.ecc.android.sdk.model.BlockHeight
+import cash.z.ecc.android.sdk.model.TransactionOverview
 import cash.z.ecc.android.ui.history.HistoryViewModel
+import cash.z.ecc.android.ui.setup.WalletSetupViewModel
 import cash.z.ecc.android.ui.util.MemoUtil
 import cash.z.ecc.android.util.twig
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(R.layout.main_activity) {
@@ -217,22 +220,35 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
         }
     }
 
-    fun startSync(isRestart: Boolean = false) {
+    @OptIn(FlowPreview::class)
+    fun startSync(
+        syncConfig: WalletSetupViewModel.SyncConfig,
+        isRestart: Boolean = false
+    ) {
         twig("MainActivity.startSync")
         if (!syncStarted || isRestart) {
             syncStarted = true
             mainViewModel.setLoading(true)
             feedback.report(SYNC_START)
-            DependenciesHolder.synchronizer.let { synchronizer ->
-                synchronizer.onProcessorErrorHandler = ::onProcessorError
-                synchronizer.onChainErrorHandler = ::onChainError
-                synchronizer.onCriticalErrorHandler = ::onCriticalError
-                (synchronizer as SdkSynchronizer).processor.onScanMetricCompleteListener =
-                    ::onScanMetricComplete
+            lifecycleScope.launch {
+                DependenciesHolder.synchronizerComponent.createSynchronizer(
+                    zcashNetwork = syncConfig.network,
+                    lightWalletEndpoint = syncConfig.lightWalletEndpoint,
+                    seed = syncConfig.seed,
+                    birthday = syncConfig.birthday
+                ).apply {
+                    onProcessorErrorHandler = ::onProcessorError
+                    onChainErrorHandler = ::onChainError
+                    onCriticalErrorHandler = ::onCriticalError
+                    (this as SdkSynchronizer).processor.onScanMetricCompleteListener =
+                        ::onScanMetricComplete
 
-                synchronizer.start(lifecycleScope)
-                mainViewModel.setSyncReady(true)
+                    start(lifecycleScope)
+                    mainViewModel.setSyncReady(true)
+                }
             }
+            twig("Synchronizer component created")
+            feedback.report(SYNC_START)
         } else {
             twig("Ignoring request to start sync because sync has already been started!")
         }
@@ -324,6 +340,7 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
                         )
                         block()
                     }
+
                     ERROR_LOCKOUT -> doNothing("Too many attempts. Try again in 30s.")
                     ERROR_LOCKOUT_PERMANENT -> doNothing("Whoa. Waaaay too many attempts!")
                     ERROR_CANCELED -> doNothing("I just can't right now. Please try again.")
@@ -382,14 +399,17 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     fun copyAddress(view: View? = null) {
         reportTap(COPY_ADDRESS)
         lifecycleScope.launch {
-            copyText(DependenciesHolder.synchronizer.getAddress(), "Address")
+            copyText(DependenciesHolder.synchronizer.getUnifiedAddress(), "Address")
         }
     }
 
     fun copyTransparentAddress(view: View? = null) {
         reportTap(COPY_TRANSPARENT_ADDRESS)
         lifecycleScope.launch {
-            copyText(DependenciesHolder.synchronizer.getTransparentAddress(), "T-Address")
+            copyText(
+                DependenciesHolder.synchronizer.getTransparentAddress(),
+                "T-Address"
+            )
         }
     }
 
@@ -437,7 +457,8 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
 
     private fun showMessage(message: String, linger: Boolean = false) {
         twig("toast: $message")
-        Toast.makeText(this, message, if (linger) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, message, if (linger) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
+            .show()
     }
 
     fun showSnackbar(
@@ -541,6 +562,7 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
                     }
                 }
             }
+
             is CompactBlockProcessorException.FailedScan -> {
                 if (dialog == null && !ignoreScanFailure) throttle("scanFailure", 20_000L) {
                     notified = true
@@ -603,9 +625,12 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
 
     /* Memo functions that might possibly get moved to MemoUtils */
 
-    suspend fun getSender(transaction: ConfirmedTransaction?): String {
+    suspend fun getSender(transaction: TransactionOverview?): String {
         if (transaction == null) return getString(R.string.unknown)
-        return MemoUtil.findAddressInMemo(transaction, ::isValidAddress)?.toAbbreviatedAddress()
+        val memo = DependenciesHolder.synchronizer.getMemos(transaction)
+            .firstOrNull()
+
+        return MemoUtil.findAddressInMemo(memo, ::isValidAddress)?.toAbbreviatedAddress()
             ?: getString(R.string.unknown)
     }
 

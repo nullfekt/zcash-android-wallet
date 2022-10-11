@@ -5,14 +5,9 @@ import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.block.CompactBlockProcessor
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
-import cash.z.ecc.android.sdk.db.entity.isMined
-import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
-import cash.z.ecc.android.sdk.model.BlockHeight
-import cash.z.ecc.android.sdk.model.WalletBalance
-import cash.z.ecc.android.sdk.model.Zatoshi
+import cash.z.ecc.android.sdk.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combineTransform
 
@@ -131,7 +126,7 @@ class BalanceDetailViewModel : ViewModel() {
 
         private fun PendingTransaction.isConfirmed(networkBlockHeight: BlockHeight?): Boolean {
             return networkBlockHeight?.let {
-                isMined() && (it.value - minedHeight + 1) > 10 // fix: plus 1 because the mined block counts as the FIRST confirmation
+                isMined() && (it.value - minedHeight!!.value + 1) > 10 // fix: plus 1 because the mined block counts as the FIRST confirmation
             } ?: false
         }
 
@@ -139,7 +134,7 @@ class BalanceDetailViewModel : ViewModel() {
             pendingUnconfirmed
                 .map {
                     confirmationsRequired - ((info.lastScannedHeight?.value
-                        ?: -1) - it.minedHeight + 1)
+                        ?: -1) - it.minedHeight!!.value + 1)
                 } // fix: plus 1 because the mined block counts as the FIRST confirmation
                 .filter { it > 0 }
                 .sortedDescending()

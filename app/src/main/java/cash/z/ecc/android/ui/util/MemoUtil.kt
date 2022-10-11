@@ -1,6 +1,7 @@
 package cash.z.ecc.android.ui.util
 
-import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
+import cash.z.ecc.android.sdk.model.FirstClassByteArray
+import cash.z.ecc.android.sdk.model.PendingTransaction
 import java.nio.charset.StandardCharsets
 
 /**
@@ -21,25 +22,17 @@ val INCLUDE_MEMO_PREFIXES_RECOGNIZED = arrayOf(
     "sent from" // previous standard w/o colon
 )
 
-// TODO: move this to the SDK
-inline fun ByteArray?.toUtf8Memo(): String {
-// TODO: make this more official but for now, this will do
-    return if (this == null || this.isEmpty() || this[0] >= 0xF5) "" else try {
-        // trim empty and "replacement characters" for codes that can't be represented in unicode
-        String(this, StandardCharsets.UTF_8).trim('\u0000', '\uFFFD')
-    } catch (t: Throwable) {
-        "Unable to parse memo."
-    }
-}
-
 object MemoUtil {
 
-    suspend fun findAddressInMemo(tx: ConfirmedTransaction?, addressValidator: suspend (String) -> Boolean): String? {
+    suspend fun findAddressInMemo(
+        memo: String?,
+        addressValidator: suspend (String) -> Boolean
+    ): String? {
         // note: t-addr min length is 35, plus we're expecting prefixes
-        return tx?.memo?.toUtf8Memo()?.takeUnless { it.length < 35 }?.let { memo ->
+        return memo?.takeUnless { it.length < 35 }?.let {
             // start with what we accept as prefixes
             INCLUDE_MEMO_PREFIXES_RECOGNIZED.mapNotNull {
-                val maybeMemo = memo.substringAfterLast(it)
+                val maybeMemo = it.substringAfterLast(it)
                 if (addressValidator(maybeMemo)) maybeMemo else null
             }.firstOrNull { !it.isNullOrBlank() }
         }

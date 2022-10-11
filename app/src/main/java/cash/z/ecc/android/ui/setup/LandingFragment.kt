@@ -134,6 +134,8 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
 
     // AKA import wallet
     private fun onUseDevWallet() {
+        val network = ZcashWalletApp.instance.defaultNetwork
+
         val seedPhrase: String
         val birthday: BlockHeight
 
@@ -155,8 +157,12 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
         mainActivity?.apply {
             lifecycleScope.launch {
                 try {
-                    walletSetup.importWallet(seedPhrase, birthday)
-                    mainActivity?.startSync()
+                    mainActivity?.startSync(
+                        walletSetup.importWallet(
+                            seedPhrase,
+                            birthday
+                        )
+                    )
                     binding.buttonPositive.isEnabled = true
                     binding.textMessage.setText(R.string.landing_import_success_message)
                     binding.buttonNegative.setText(R.string.landing_button_secondary_import_success)
@@ -176,8 +182,7 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
             binding.buttonPositive.isEnabled = false
 
             try {
-                walletSetup.newWallet()
-                mainActivity?.startSync()
+                mainActivity?.startSync(walletSetup.newWallet())
 
                 binding.buttonPositive.isEnabled = true
                 binding.textMessage.setText(R.string.landing_create_success_message)

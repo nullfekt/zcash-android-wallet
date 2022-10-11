@@ -6,11 +6,11 @@ import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.lockbox.LockBox
-import cash.z.ecc.android.sdk.Initializer
 import cash.z.ecc.android.sdk.Synchronizer
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
 import cash.z.ecc.android.sdk.ext.ZcashSdk
+import cash.z.ecc.android.sdk.model.Account
 import cash.z.ecc.android.sdk.model.BlockHeight
+import cash.z.ecc.android.sdk.model.PendingTransaction
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.util.twig
@@ -31,7 +31,7 @@ class ProfileViewModel : ViewModel() {
     // TODO: track this in the app and then fetch. For now, just estimate the blocks per second.
     val bps = 40
 
-    suspend fun getShieldedAddress(): String = synchronizer.getAddress()
+    suspend fun getShieldedAddress(): String = synchronizer.getUnifiedAddress()
 
     suspend fun getTransparentAddress(): String {
         return synchronizer.getTransparentAddress()
@@ -55,23 +55,21 @@ class ProfileViewModel : ViewModel() {
         return synchronizer.getTransparentBalance(address)
     }
 
-    fun shieldFunds(): Flow<PendingTransaction> {
-        return lockBox.getBytes(Const.Backup.SEED)?.let {
-            val sk = runBlocking { DerivationTool.deriveSpendingKeys(it, synchronizer.network)[0] }
-            val tsk =
-                runBlocking { DerivationTool.deriveTransparentSecretKey(it, synchronizer.network) }
-            val addr = runBlocking {
-                DerivationTool.deriveTransparentAddressFromPrivateKey(
-                    tsk,
-                    synchronizer.network
-                )
-            }
+    suspend fun shieldFunds(): Flow<PendingTransaction> {
+        return lockBox.getBytes(Const.Backup.SEED)?.let { seed ->
+            val usk = DerivationTool.deriveUnifiedSpendingKey(
+                seed,
+                synchronizer.network,
+                Account.DEFAULT
+            )
+
+            val addr = synchronizer.getTransparentAddress()
+
             synchronizer.shieldFunds(
-                sk,
-                tsk,
+                usk,
                 "${ZcashSdk.DEFAULT_SHIELD_FUNDS_MEMO_PREFIX}\nAll UTXOs from $addr"
             ).onEach {
-                twig("Received shielding txUpdate: ${it?.toString()}")
+                twig("Received shielding txUpdate: $it")
 //                updateMetrics(it)
 //                reportFailures(it)
             }
@@ -97,12 +95,6 @@ class ProfileViewModel : ViewModel() {
             "SUCCESS! Wallet data cleared. Please relaunch to rescan!",
             Toast.LENGTH_LONG
         ).show()
-        runBlocking {
-            Initializer.erase(
-                ZcashWalletApp.instance,
-                ZcashWalletApp.instance.defaultNetwork
-            )
-        }
     }
 
     suspend fun fullRescan() {

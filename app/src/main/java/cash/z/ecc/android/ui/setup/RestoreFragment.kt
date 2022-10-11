@@ -47,9 +47,10 @@ class RestoreFragment : BaseFragment<FragmentRestoreBinding>(), View.OnKeyListen
         super.onViewCreated(view, savedInstanceState)
 
         seedWordRecycler = binding.chipsInput.findViewById<RecyclerView>(R.id.chips_recycler)
-        seedWordAdapter = SeedWordAdapter(seedWordRecycler.adapter as ChipsAdapter).onDataSetChanged {
-            onChipsModified()
-        }.also { onChipsModified() }
+        seedWordAdapter =
+            SeedWordAdapter(seedWordRecycler.adapter as ChipsAdapter).onDataSetChanged {
+                onChipsModified()
+            }.also { onChipsModified() }
         seedWordRecycler.adapter = seedWordAdapter
 
         binding.chipsInput.apply {
@@ -136,7 +137,10 @@ class RestoreFragment : BaseFragment<FragmentRestoreBinding>(), View.OnKeyListen
 
         try {
             walletSetup.validatePhrase(seedPhrase)
-            importWallet(seedPhrase, BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, birthday))
+            importWallet(
+                seedPhrase,
+                BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, birthday)
+            )
         } catch (t: Throwable) {
             mainActivity?.showInvalidSeedPhraseError(t)
         }
@@ -148,8 +152,13 @@ class RestoreFragment : BaseFragment<FragmentRestoreBinding>(), View.OnKeyListen
         mainActivity?.apply {
             lifecycleScope.launch {
                 try {
-                    walletSetup.importWallet(seedPhrase, birthday)
-                    mainActivity?.startSync()
+                    mainActivity?.startSync(
+                        walletSetup.importWallet(
+                            seedPhrase,
+                            birthday
+                        )
+                    )
+
                     // bugfix: if the user proceeds before the synchronizer is created the app will crash!
                     binding.buttonSuccess.isEnabled = true
                     mainActivity?.reportFunnel(Restore.ImportCompleted)
@@ -219,7 +228,8 @@ class RestoreFragment : BaseFragment<FragmentRestoreBinding>(), View.OnKeyListen
         seedWordAdapter?.editText?.apply {
             postDelayed(
                 {
-                    seedWordAdapter?.editText?.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    seedWordAdapter?.editText?.inputType =
+                        InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     dispatchTouchEvent(motionEvent(ACTION_DOWN))
                     dispatchTouchEvent(motionEvent(ACTION_UP))
                 },

@@ -17,12 +17,22 @@ import cash.z.ecc.android.feedback.Report.Funnel.Send.SendSelected
 import cash.z.ecc.android.feedback.Report.Funnel.Send.SpendingKeyFound
 import cash.z.ecc.android.feedback.Report.Issue
 import cash.z.ecc.android.feedback.Report.MetricType
-import cash.z.ecc.android.feedback.Report.MetricType.*
+import cash.z.ecc.android.feedback.Report.MetricType.TRANSACTION_CREATED
+import cash.z.ecc.android.feedback.Report.MetricType.TRANSACTION_INITIALIZED
+import cash.z.ecc.android.feedback.Report.MetricType.TRANSACTION_MINED
+import cash.z.ecc.android.feedback.Report.MetricType.TRANSACTION_SUBMITTED
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
-import cash.z.ecc.android.sdk.db.entity.*
 import cash.z.ecc.android.sdk.ext.ZcashSdk
+import cash.z.ecc.android.sdk.model.Account
+import cash.z.ecc.android.sdk.model.PendingTransaction
 import cash.z.ecc.android.sdk.model.Zatoshi
+import cash.z.ecc.android.sdk.model.isCreated
+import cash.z.ecc.android.sdk.model.isCreating
+import cash.z.ecc.android.sdk.model.isFailedEncoding
+import cash.z.ecc.android.sdk.model.isFailedSubmit
+import cash.z.ecc.android.sdk.model.isMined
+import cash.z.ecc.android.sdk.model.isSubmitSuccess
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.type.AddressType
 import cash.z.ecc.android.ui.util.INCLUDE_MEMO_PREFIX_STANDARD
@@ -44,7 +54,7 @@ class SendViewModel : ViewModel() {
 
     val synchronizer: Synchronizer = DependenciesHolder.synchronizer
 
-    private val feedback: Feedback = DependenciesHolder.feedback
+    var feedback: Feedback = DependenciesHolder.feedback
 
     var fromAddress: String = ""
     var toAddress: String = ""
@@ -60,19 +70,20 @@ class SendViewModel : ViewModel() {
         }
     val isShielded get() = toAddress.startsWith("z")
 
-    fun send(): Flow<PendingTransaction> {
+    suspend fun send(): Flow<PendingTransaction> {
         funnel(SendSelected)
         val memoToSend = createMemoToSend()
-        val keys = runBlocking {
-            DerivationTool.deriveSpendingKeys(
+        val usk = runBlocking {
+            DerivationTool.deriveUnifiedSpendingKey(
                 lockBox.getBytes(Const.Backup.SEED)!!,
-                synchronizer.network
+                synchronizer.network,
+                Account.DEFAULT
             )
         }
         funnel(SpendingKeyFound)
         reportUserInputIssues(memoToSend)
         return synchronizer.sendToAddress(
-            keys[0],
+            usk,
             zatoshiAmount!!,
             toAddress,
             memoToSend.chunked(ZcashSdk.MAX_MEMO_SIZE).firstOrNull() ?: ""
@@ -141,7 +152,7 @@ class SendViewModel : ViewModel() {
 
     fun afterInitFromAddress(block: () -> Unit) {
         viewModelScope.launch {
-            fromAddress = synchronizer.getAddress()
+            fromAddress = synchronizer.getUnifiedAddress()
             block()
         }
     }
@@ -165,7 +176,6 @@ class SendViewModel : ViewModel() {
             return
         }
         when {
-            tx.isCancelled() -> funnel(Send.Cancelled)
             tx.isFailedEncoding() -> {
                 // report that the funnel leaked and also capture a non-fatal app error
                 funnel(Send.ErrorEncoding(tx.errorCode, tx.errorMessage))

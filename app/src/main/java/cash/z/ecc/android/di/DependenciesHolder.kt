@@ -16,9 +16,10 @@ object DependenciesHolder {
 
     fun provideAppContext(): Context = ZcashWalletApp.instance
 
-    val initializerComponent by lazy { InitializerComponent() }
+    val synchronizerComponent by lazy { SynchronizerComponent() }
 
-    val synchronizer by lazy { Synchronizer.newBlocking(initializerComponent.initializer) }
+    val synchronizer: Synchronizer
+        get() = synchronizerComponent.synchronizer
 
     val clipboardManager by lazy { provideAppContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
 

@@ -25,7 +25,10 @@ fun <T> String.distribute(chunks: Int, block: (Int, String) -> T) {
         val part = if (i < chunksWithExtra) {
             substring(i * (wholeCharsPerChunk + 1), (i + 1) * (wholeCharsPerChunk + 1))
         } else {
-            substring(i * wholeCharsPerChunk + chunksWithExtra, (i + 1) * wholeCharsPerChunk + chunksWithExtra)
+            substring(
+                i * wholeCharsPerChunk + chunksWithExtra,
+                (i + 1) * wholeCharsPerChunk + chunksWithExtra
+            )
         }
         block(i, part)
     }
@@ -66,4 +69,13 @@ inline fun Context.locale(): Locale {
 inline fun <reified T> Twig.find(): T? {
     return if (Bush.trunk::class.java.isAssignableFrom(T::class.java)) Bush.trunk as T
     else null
+}
+
+fun ByteArray?.toTxId(): String? {
+    if (this == null) return null
+    val sb = StringBuilder(size * 2)
+    for (i in (size - 1) downTo 0) {
+        sb.append(String.format("%02x", this[i]))
+    }
+    return sb.toString()
 }

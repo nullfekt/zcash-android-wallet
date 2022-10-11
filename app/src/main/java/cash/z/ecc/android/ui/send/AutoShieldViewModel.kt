@@ -6,21 +6,21 @@ import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
-import cash.z.ecc.android.sdk.db.entity.isMined
-import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
+import cash.z.ecc.android.sdk.model.Account
 import cash.z.ecc.android.sdk.model.BlockHeight
+import cash.z.ecc.android.sdk.model.PendingTransaction
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.model.Zatoshi
+import cash.z.ecc.android.sdk.model.isMined
+import cash.z.ecc.android.sdk.model.isSubmitSuccess
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class AutoShieldViewModel : ViewModel() {
 
@@ -56,7 +56,7 @@ class AutoShieldViewModel : ViewModel() {
 
     private fun PendingTransaction.isConfirmed(networkBlockHeight: BlockHeight?): Boolean {
         return networkBlockHeight?.let { height ->
-            isMined() && (height.value - minedHeight + 1) > 10
+            isMined() && (height.value - minedHeight!!.value + 1) > 10
         } ?: false
     }
 
@@ -79,24 +79,15 @@ class AutoShieldViewModel : ViewModel() {
         }
     }
 
-    fun shieldFunds(): Flow<PendingTransaction> {
+    suspend fun shieldFunds(): Flow<PendingTransaction> {
         return lockBox.getBytes(Const.Backup.SEED)?.let {
-            val sk = runBlocking { DerivationTool.deriveSpendingKeys(it, synchronizer.network)[0] }
-            val tsk = runBlocking {
-                DerivationTool.deriveTransparentSecretKey(
-                    it,
-                    synchronizer.network
-                )
-            }
-            val addr = runBlocking {
-                DerivationTool.deriveTransparentAddressFromPrivateKey(
-                    tsk,
-                    synchronizer.network
-                )
-            }
+            val usk =
+                DerivationTool.deriveUnifiedSpendingKey(it, synchronizer.network, Account.DEFAULT)
+
+            val addr = synchronizer.getTransparentAddress()
+
             synchronizer.shieldFunds(
-                sk,
-                tsk,
+                usk,
                 "${ZcashSdk.DEFAULT_SHIELD_FUNDS_MEMO_PREFIX}\nAll UTXOs from $addr"
             ).onEach { tx ->
                 twig("Received shielding txUpdate: ${tx?.toString()}")
@@ -151,7 +142,7 @@ class AutoShieldViewModel : ViewModel() {
 
         fun remainingConfirmations(latestHeight: Int, confirmationsRequired: Int = 10) =
             pendingUnconfirmed
-                .map { confirmationsRequired - (latestHeight - it.minedHeight + 1) }
+                .map { confirmationsRequired - (latestHeight - it.minedHeight!!.value + 1) }
                 .filter { it > 0 }
                 .sortedDescending()
     }

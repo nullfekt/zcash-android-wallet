@@ -6,16 +6,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentSendFinalBinding
 import cash.z.ecc.android.ext.WalletZecFormmatter
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.SEND_FINAL_CLOSE
-import cash.z.ecc.android.sdk.SdkSynchronizer
-import cash.z.ecc.android.sdk.db.entity.*
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
-import cash.z.ecc.android.sdk.model.Zatoshi
+import cash.z.ecc.android.sdk.model.PendingTransaction
+import cash.z.ecc.android.sdk.model.TransactionRecipient
+import cash.z.ecc.android.sdk.model.isCreating
+import cash.z.ecc.android.sdk.model.isFailedEncoding
+import cash.z.ecc.android.sdk.model.isFailure
+import cash.z.ecc.android.sdk.model.isSubmitSuccess
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.launchIn
@@ -39,16 +43,22 @@ class SendFinalFragment : BaseFragment<FragmentSendFinalBinding>() {
             onExit().also { tapped(SEND_FINAL_CLOSE) }
         }
         binding.textConfirmation.text =
-            "${getString(R.string.send_final_sending)} ${WalletZecFormmatter.toZecStringFull(sendViewModel.zatoshiAmount)} ${getString(R.string.symbol)}\n${getString(R.string.send_final_to)}\n${sendViewModel.toAddress.toAbbreviatedAddress()}"
+            "${getString(R.string.send_final_sending)} ${
+                WalletZecFormmatter.toZecStringFull(
+                    sendViewModel.zatoshiAmount
+                )
+            } ${getString(R.string.symbol)}\n${getString(R.string.send_final_to)}\n${sendViewModel.toAddress.toAbbreviatedAddress()}"
         mainActivity?.preventBackPress(this)
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mainActivity?.apply {
-            sendViewModel.send().onEach {
-                onPendingTxUpdated(it)
-            }.launchIn((sendViewModel.synchronizer as SdkSynchronizer).coroutineScope)
+            lifecycleScope.launchWhenStarted {
+                sendViewModel.send().onEach {
+                    onPendingTxUpdated(it)
+                }.launchIn(this)
+            }
         }
     }
 
@@ -119,11 +129,6 @@ class SendFinalFragment : BaseFragment<FragmentSendFinalBinding>() {
 
     private fun PendingTransaction.toUiModel() = UiModel().also { model ->
         when {
-            isCancelled() -> {
-                model.title = getString(R.string.send_final_result_cancelled)
-                model.primaryButtonText = getString(R.string.send_final_button_primary_back)
-                model.primaryAction = { onReturnToSend() }
-            }
             isSubmitSuccess() -> {
                 model.title = getString(R.string.send_final_button_primary_sent)
                 model.primaryButtonText = getString(R.string.send_final_button_primary_details)
@@ -131,17 +136,24 @@ class SendFinalFragment : BaseFragment<FragmentSendFinalBinding>() {
             }
             isFailure() -> {
                 model.title = getString(R.string.send_final_button_primary_failed)
-                model.errorMessage = if (isFailedEncoding()) getString(R.string.send_final_error_encoding) else getString(
-                    R.string.send_final_error_submitting
-                )
+                model.errorMessage =
+                    if (isFailedEncoding()) getString(R.string.send_final_error_encoding) else getString(
+                        R.string.send_final_error_submitting
+                    )
                 model.errorDescription = errorMessage.toString()
                 model.primaryButtonText = getString(R.string.send_final_button_primary_retry)
                 model.primaryAction = { onReturnToSend() }
                 model.showSecondaryButton = true
             }
             else -> {
-                model.title = "${getString(R.string.send_final_sending)} ${WalletZecFormmatter.toZecStringFull(
-                    Zatoshi(value))} ${getString(R.string.symbol)} ${getString(R.string.send_final_to)}\n${toAddress.toAbbreviatedAddress()}"
+                val toAddress = if (recipient is TransactionRecipient.Address) {
+                    (recipient as TransactionRecipient.Address).addressValue
+                } else {
+                    ""
+                }
+                model.title = "${getString(R.string.send_final_sending)} ${
+                    WalletZecFormmatter.toZecStringFull(value)
+                } ${getString(R.string.symbol)} ${getString(R.string.send_final_to)}\n${toAddress.toAbbreviatedAddress()}"
                 model.showProgress = true
                 if (isCreating()) {
                     model.showCloseIcon = false

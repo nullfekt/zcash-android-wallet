@@ -1,11 +1,7 @@
 package cash.z.ecc.android
 
 import cash.z.ecc.android.feedback.Feedback
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
-import cash.z.ecc.android.sdk.db.entity.isCreated
-import cash.z.ecc.android.sdk.db.entity.isCreating
-import cash.z.ecc.android.sdk.db.entity.isMined
-import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
+import cash.z.ecc.android.sdk.model.*
 import cash.z.ecc.android.ui.send.SendViewModel
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -41,16 +37,16 @@ class SendViewModelTest {
         whenever(creatingTx.submitAttempts).thenReturn(0)
 
         whenever(createdTx.id).thenReturn(7)
-        whenever(createdTx.raw).thenReturn(byteArrayOf(0x1))
+        whenever(createdTx.raw.byteArray).thenReturn(byteArrayOf(0x1))
 
         whenever(submittedTx.id).thenReturn(7)
-        whenever(submittedTx.raw).thenReturn(byteArrayOf(0x1))
+        whenever(submittedTx.raw.byteArray).thenReturn(byteArrayOf(0x1))
         whenever(submittedTx.submitAttempts).thenReturn(1)
 
         whenever(minedTx.id).thenReturn(7)
-        whenever(minedTx.raw).thenReturn(byteArrayOf(0x1))
+        whenever(minedTx.raw.byteArray).thenReturn(byteArrayOf(0x1))
         whenever(minedTx.submitAttempts).thenReturn(1)
-        whenever(minedTx.minedHeight).thenReturn(500_001)
+        whenever(minedTx.minedHeight?.value).thenReturn(500_001)
 
         sendViewModel.feedback = feedback
     }

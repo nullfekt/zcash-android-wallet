@@ -16,10 +16,8 @@ import cash.z.ecc.android.ext.invisibleIf
 import cash.z.ecc.android.ext.onClickNavBack
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.*
-import cash.z.ecc.android.sdk.db.entity.*
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
-import cash.z.ecc.android.sdk.model.WalletBalance
-import cash.z.ecc.android.sdk.model.Zatoshi
+import cash.z.ecc.android.sdk.model.*
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.util.AddressPartNumberSpan
 import cash.z.ecc.android.util.twig
@@ -233,12 +231,6 @@ class AwesomeFragment : BaseFragment<FragmentAwesomeBinding>() {
 
     private fun PendingTransaction.toUiModel() = UiModel().also { model ->
         when {
-            isCancelled() -> {
-                model.status = "Shielding Cancelled!"
-                model.updateBalance = true
-                model.primaryAction = { onShieldFundsAction() }
-                model.details.add("Cancelled!")
-            }
             isSubmitSuccess() -> {
                 model.status = "Shielding Success!"
                 model.primaryButtonText = "Done"

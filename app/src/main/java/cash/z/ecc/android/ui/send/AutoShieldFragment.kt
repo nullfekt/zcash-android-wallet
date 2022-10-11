@@ -18,8 +18,8 @@ import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.preference.Preferences
 import cash.z.ecc.android.preference.model.get
 import cash.z.ecc.android.preference.model.put
-import cash.z.ecc.android.sdk.db.entity.*
 import cash.z.ecc.android.sdk.ext.collectWith
+import cash.z.ecc.android.sdk.model.*
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,16 +57,18 @@ class AutoShieldFragment : BaseFragment<FragmentAutoShieldBinding>() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mainActivity?.apply {
-            viewModel.shieldFunds().onEach { p: PendingTransaction ->
-                try {
-                    uiModels.value = p.toUiModel()
-                } catch (t: Throwable) {
-                    val message = "ERROR: error while handling pending transaction update! $t"
-                    twig(message)
-                    mainActivity?.feedback?.report(Report.Error.NonFatal.TxUpdateFailed(t))
-                    mainActivity?.feedback?.report(t)
-                }
-            }.launchIn(lifecycleScope)
+            lifecycleScope.launchWhenStarted {
+                viewModel.shieldFunds().onEach { p: PendingTransaction ->
+                    try {
+                        uiModels.value = p.toUiModel()
+                    } catch (t: Throwable) {
+                        val message = "ERROR: error while handling pending transaction update! $t"
+                        twig(message)
+                        mainActivity?.feedback?.report(Report.Error.NonFatal.TxUpdateFailed(t))
+                        mainActivity?.feedback?.report(t)
+                    }
+                }.launchIn(lifecycleScope)
+            }
         }
     }
 
@@ -102,7 +104,11 @@ class AutoShieldFragment : BaseFragment<FragmentAutoShieldBinding>() {
                 if (viewModel.updateAutoshieldAchievement()) {
                     mainActivity?.showSnackbar("Achievement unlocked! Golden Zebra.", "View") {
                         mainActivity?.safeNavigate(R.id.action_nav_shield_final_to_profile)
-                        Toast.makeText(mainActivity, "Your Zebra is now yellow because you are great", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            mainActivity,
+                            "Your Zebra is now yellow because you are great",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             }
@@ -123,12 +129,6 @@ class AutoShieldFragment : BaseFragment<FragmentAutoShieldBinding>() {
 
     private fun PendingTransaction.toUiModel() = UiModel().also { model ->
         when {
-            isCancelled() -> {
-                model.title = getString(R.string.send_final_result_cancelled)
-                model.pauseShielding = true
-                model.primaryButtonText = getString(R.string.send_final_button_primary_back)
-                model.primaryAction = { mainActivity?.navController?.popBackStack() }
-            }
             isSubmitSuccess() -> {
                 model.showCloseIcon = true
                 model.title = getString(R.string.send_final_button_primary_sent)
@@ -219,7 +219,8 @@ class AutoShieldFragment : BaseFragment<FragmentAutoShieldBinding>() {
             val currentEpochMillis = clock.millis()
             val lastAutoshieldEpochMillis = Preferences.lastAutoshieldingEpochMillis.get(context)
 
-            val isLastAutoshieldOld = (currentEpochMillis - lastAutoshieldEpochMillis) > maxAutoshieldFrequency
+            val isLastAutoshieldOld =
+                (currentEpochMillis - lastAutoshieldEpochMillis) > maxAutoshieldFrequency
             // Prevent a corner case where a user with a clock in the future during one autoshielding prompt
             // could prevent all subsequent autoshielding prompts.
             val isTimeTraveling = lastAutoshieldEpochMillis > currentEpochMillis

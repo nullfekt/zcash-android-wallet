@@ -6,17 +6,27 @@ import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.toAppString
 import cash.z.ecc.android.sdk.Synchronizer
-import cash.z.ecc.android.sdk.Synchronizer.Status.*
+import cash.z.ecc.android.sdk.Synchronizer.Status.DISCONNECTED
+import cash.z.ecc.android.sdk.Synchronizer.Status.DOWNLOADING
+import cash.z.ecc.android.sdk.Synchronizer.Status.SCANNING
+import cash.z.ecc.android.sdk.Synchronizer.Status.SYNCED
+import cash.z.ecc.android.sdk.Synchronizer.Status.VALIDATING
 import cash.z.ecc.android.sdk.block.CompactBlockProcessor
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
-import cash.z.ecc.android.sdk.db.entity.isMined
-import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
 import cash.z.ecc.android.sdk.ext.ZcashSdk.MINERS_FEE
+import cash.z.ecc.android.sdk.model.PendingTransaction
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.model.Zatoshi
+import cash.z.ecc.android.sdk.model.isMined
+import cash.z.ecc.android.sdk.model.isSubmitSuccess
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.scan
 import kotlin.math.roundToInt
 
 // There are deprecations with the use of BroadcastChannel

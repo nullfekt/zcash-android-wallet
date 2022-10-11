@@ -103,7 +103,7 @@ class BackupFragment : BaseFragment<FragmentBackupBinding>() {
             storedBirthday = walletSetup.loadBirthdayHeight()
             oldestTransactionHeight = DependenciesHolder.synchronizer.receivedTransactions.first()
                 ?.last()?.minedHeight?.let {
-                    BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it)
+                    BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it.value)
                 }
             // to be safe adjust for reorgs (and generally a little cushion is good for privacy)
             // so we round down to the nearest 100 and then subtract 100 to ensure that the result is always at least 100 blocks away

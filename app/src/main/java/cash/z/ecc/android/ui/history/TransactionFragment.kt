@@ -65,11 +65,11 @@ class TransactionFragment : BaseFragment<FragmentTransactionBinding>() {
         binding.apply {
             ViewCompat.setTransitionName(
                 topBoxValue,
-                "test_amount_anim_${viewModel.selectedTransaction.value?.id}"
+                "test_amount_anim_${viewModel.selectedTransaction.value?.rawId}"
             )
             ViewCompat.setTransitionName(
                 topBoxBackground,
-                "test_bg_anim_${viewModel.selectedTransaction.value?.id}"
+                "test_bg_anim_${viewModel.selectedTransaction.value?.rawId}"
             )
             backButtonHitArea.onClickNavBack { tapped(Report.Tap.TRANSACTION_BACK) }
 

@@ -13,9 +13,10 @@ import cash.z.ecc.android.databinding.FragmentHistoryBinding
 import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.HISTORY_BACK
-import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
 import cash.z.ecc.android.sdk.ext.collectWith
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
+import cash.z.ecc.android.sdk.model.PendingTransaction
+import cash.z.ecc.android.sdk.model.TransactionOverview
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.util.twig
@@ -27,7 +28,7 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
 
     private val viewModel: HistoryViewModel by activityViewModels()
 
-    private lateinit var transactionAdapter: TransactionAdapter<ConfirmedTransaction>
+    private lateinit var transactionAdapter: TransactionAdapter
 
     override fun inflate(inflater: LayoutInflater): FragmentHistoryBinding =
         FragmentHistoryBinding.inflate(inflater)
@@ -64,15 +65,16 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
             val changeString = WalletZecFormmatter.toZecStringFull(change)
             val expecting = R.string.home_banner_expecting.toAppString(true)
             val symbol = getString(R.string.symbol)
-            text = "($expecting +$changeString $symbol)".toColoredSpan(R.color.text_light, "+$changeString")
+            text = "($expecting +$changeString $symbol)".toColoredSpan(
+                R.color.text_light,
+                "+$changeString"
+            )
         }
     }
 
     private fun initTransactionUI() {
         twig("HistoryFragment.initTransactionUI")
         transactionAdapter = TransactionAdapter()
-        transactionAdapter.stateRestorationPolicy =
-            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 
         binding.recyclerTransactions.apply {
             layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
@@ -80,7 +82,7 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
         }
     }
 
-    private fun onTransactionsUpdated(transactions: List<ConfirmedTransaction>) {
+    private fun onTransactionsUpdated(transactions: List<TransactionOverview>) {
         twig("HistoryFragment.onTransactionsUpdated")
         transactions.size.let { newCount ->
             twig("got a new paged list of transactions of length $newCount")
@@ -91,13 +93,8 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
                 transactionAdapter.submitList(null)
             } else {
                 // tricky: for now, explicitly fail (cast exception) if the transactions are not in a PagedList. Otherwise, this would silently fail to show items and be hard to debug if we're ever passed a non-empty list that isn't an instance of PagedList. This awkwardness will go away when we switch to Paging3
-                transactionAdapter.submitList(transactions as PagedList<ConfirmedTransaction>)
+                transactionAdapter.submitList(transactions as PagedList<TransactionOverview>)
             }
         }
-    }
-
-    // TODO: maybe implement this for better fade behavior. Or do an actual scroll behavior instead, yeah do that. Or an item decoration.
-    fun onLastItemShown(item: ConfirmedTransaction, position: Int) {
-        binding.footerFade.alpha = position.toFloat() / (binding.recyclerTransactions.adapter?.itemCount ?: 1)
     }
 }

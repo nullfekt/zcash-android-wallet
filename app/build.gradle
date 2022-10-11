@@ -179,7 +179,7 @@ dependencies {
     testImplementation Deps.Test.MOKITO_KOTLIN
 
     androidTestImplementation Deps.Kotlin.REFLECT
-    androidTestImplementation(Deps.Kotlin.Coroutines.TEST)
+    testImplementation(Deps.Kotlin.Coroutines.TEST)
     androidTestImplementation Deps.Test.Android.JUNIT
     androidTestImplementation Deps.Test.Android.CORE
     androidTestImplementation Deps.Test.Android.FRAGMENT

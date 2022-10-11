@@ -25,7 +25,10 @@ import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
 import cash.z.ecc.android.sdk.ext.convertZecToZatoshi
 import cash.z.ecc.android.sdk.ext.onFirstWith
 import cash.z.ecc.android.sdk.ext.safelyConvertToBigDecimal
+import cash.z.ecc.android.sdk.model.BlockHeight
+import cash.z.ecc.android.sdk.model.LightWalletEndpoint
 import cash.z.ecc.android.sdk.model.Zatoshi
+import cash.z.ecc.android.sdk.model.ZcashNetwork
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.*
 import cash.z.ecc.android.ui.send.AutoShieldFragment
@@ -82,8 +85,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 twig("Previous wallet found. Re-opening it.")
                 mainActivity?.setLoading(true)
                 try {
-                    walletSetup.openStoredWallet()
-                    mainActivity?.startSync()
+                    mainActivity?.startSync(walletSetup.openStoredWallet())
                 } catch (e: UnsatisfiedLinkError) {
                     mainActivity?.showSharedLibraryCriticalError(e)
                 }

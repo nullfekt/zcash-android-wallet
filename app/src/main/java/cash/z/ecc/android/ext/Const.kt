@@ -35,8 +35,7 @@ object Const {
         const val HAS_BACKUP = "cash.z.ecc.android.HAS_BACKUP"
 
         // Config
-        const val VIEWING_KEY = "cash.z.ecc.android.VIEWING_KEY"
-        const val PUBLIC_KEY = "cash.z.ecc.android.PUBLIC_KEY"
+        const val UNIFIED_VIEWING_KEY = "cash.z.ecc.android.UNIFIED_VIEWING_KEY"
         const val BIRTHDAY_HEIGHT = "cash.z.ecc.android.BIRTHDAY_HEIGHT"
     }
 
