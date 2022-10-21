@@ -101,7 +101,6 @@ android {
         arguments {
             arg 'dagger.fastInit', 'enabled'
             arg 'dagger.fullBindingGraphValidation', 'ERROR'
-            arg 'dagger.gradle.incremental'
         }
     }
     packagingOptions {
@@ -171,7 +170,7 @@ dependencies {
     implementation Deps.Grpc.OKHTTP
     implementation Deps.Grpc.PROTOBUG
     implementation Deps.Grpc.STUB
-    implementation 'com.squareup.okio:okio:1.17.5'
+    implementation 'com.squareup.okio:okio:2.8.0'
     implementation Deps.JavaX.JAVA_ANNOTATION
 
     // Analytics (for dogfooding/crash-reporting/feedback only on internal team builds)
