@@ -160,11 +160,6 @@ dependencies {
     implementation Deps.Google.GUAVA
     implementation Deps.Google.MATERIAL
 
-    // Dagger
-    implementation Deps.Dagger.ANDROID_SUPPORT
-    kapt Deps.Dagger.ANDROID_PROCESSOR
-    kapt Deps.Dagger.COMPILER
-
     // grpc-java
     implementation Deps.Grpc.ANDROID
     implementation Deps.Grpc.OKHTTP
@@ -172,10 +167,6 @@ dependencies {
     implementation Deps.Grpc.STUB
     implementation 'com.squareup.okio:okio:2.8.0'
     implementation Deps.JavaX.JAVA_ANNOTATION
-
-    // Analytics (for dogfooding/crash-reporting/feedback only on internal team builds)
-    implementation Deps.Analytics.MIXPANEL
-    implementation Deps.Analytics.BUGSNAG
 
     // Misc.
     implementation Deps.Misc.LOTTIE

@@ -8,9 +8,8 @@ import cash.z.ecc.android.bip39.toEntropy
 import cash.z.ecc.android.bip39.toSeed
 import java.util.*
 import java.util.Locale.ENGLISH
-import javax.inject.Inject
 
-class Mnemonics @Inject constructor() : MnemonicPlugin {
+class Mnemonics : MnemonicPlugin {
     override fun fullWordList(languageCode: String) = Mnemonics.getCachedWords(Locale.ENGLISH.language)
     override fun nextEntropy(): ByteArray = WordCount.COUNT_24.toEntropy()
     override fun nextMnemonic(): CharArray = MnemonicCode(WordCount.COUNT_24).chars

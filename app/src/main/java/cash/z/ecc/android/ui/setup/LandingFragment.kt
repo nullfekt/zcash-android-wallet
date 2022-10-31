@@ -5,25 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.databinding.FragmentLandingBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
 import cash.z.ecc.android.ext.locale
 import cash.z.ecc.android.ext.showSharedLibraryCriticalError
 import cash.z.ecc.android.ext.toAppString
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Funnel.Restore
-import cash.z.ecc.android.feedback.Report.Tap.DEVELOPER_WALLET_CANCEL
-import cash.z.ecc.android.feedback.Report.Tap.DEVELOPER_WALLET_IMPORT
-import cash.z.ecc.android.feedback.Report.Tap.DEVELOPER_WALLET_PROMPT
-import cash.z.ecc.android.feedback.Report.Tap.LANDING_BACKUP
-import cash.z.ecc.android.feedback.Report.Tap.LANDING_BACKUP_SKIPPED_1
-import cash.z.ecc.android.feedback.Report.Tap.LANDING_BACKUP_SKIPPED_2
-import cash.z.ecc.android.feedback.Report.Tap.LANDING_BACKUP_SKIPPED_3
-import cash.z.ecc.android.feedback.Report.Tap.LANDING_NEW
-import cash.z.ecc.android.feedback.Report.Tap.LANDING_RESTORE
+import cash.z.ecc.android.feedback.Report.Tap.*
 import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.sdk.model.ZcashNetwork
 import cash.z.ecc.android.ui.base.BaseFragment
@@ -34,12 +26,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.lang.RuntimeException
 
 class LandingFragment : BaseFragment<FragmentLandingBinding>() {
     override val screen = Report.Screen.LANDING
 
-    private val walletSetup: WalletSetupViewModel by activityViewModel(false)
+    private val walletSetup: WalletSetupViewModel by activityViewModels()
 
     private var skipCount: Int = 0
 
@@ -50,8 +41,16 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
         super.onViewCreated(view, savedInstanceState)
         binding.buttonPositive.setOnClickListener {
             when (binding.buttonPositive.text.toString().toLowerCase(locale())) {
-                R.string.landing_button_primary.toAppString(true) -> onNewWallet().also { tapped(LANDING_NEW) }
-                R.string.landing_button_primary_create_success.toAppString(true) -> onBackupWallet().also { tapped(LANDING_BACKUP) }
+                R.string.landing_button_primary.toAppString(true) -> onNewWallet().also {
+                    tapped(
+                        LANDING_NEW
+                    )
+                }
+                R.string.landing_button_primary_create_success.toAppString(true) -> onBackupWallet().also {
+                    tapped(
+                        LANDING_BACKUP
+                    )
+                }
             }
         }
         binding.buttonNegative.setOnLongClickListener {
@@ -86,6 +85,7 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
             }
         }
     }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -140,11 +140,13 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
         // new testnet dev wallet
         when (ZcashWalletApp.instance.defaultNetwork) {
             ZcashNetwork.Mainnet -> {
-                seedPhrase = "still champion voice habit trend flight survey between bitter process artefact blind carbon truly provide dizzy crush flush breeze blouse charge solid fish spread"
+                seedPhrase =
+                    "still champion voice habit trend flight survey between bitter process artefact blind carbon truly provide dizzy crush flush breeze blouse charge solid fish spread"
                 birthday = BlockHeight.new(ZcashNetwork.Mainnet, 991645) // 663174
             }
             ZcashNetwork.Testnet -> {
-                seedPhrase = "quantum whisper lion route fury lunar pelican image job client hundred sauce chimney barely life cliff spirit admit weekend message recipe trumpet impact kitten"
+                seedPhrase =
+                    "quantum whisper lion route fury lunar pelican image job client hundred sauce chimney barely life cliff spirit admit weekend message recipe trumpet impact kitten"
                 birthday = BlockHeight.new(ZcashNetwork.Testnet, 1330190)
             }
             else -> throw RuntimeException("No developer wallet exists for network ${ZcashWalletApp.instance.defaultNetwork}")
@@ -153,7 +155,8 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
         mainActivity?.apply {
             lifecycleScope.launch {
                 try {
-                    mainActivity?.startSync(walletSetup.importWallet(seedPhrase, birthday))
+                    walletSetup.importWallet(seedPhrase, birthday)
+                    mainActivity?.startSync()
                     binding.buttonPositive.isEnabled = true
                     binding.textMessage.setText(R.string.landing_import_success_message)
                     binding.buttonNegative.setText(R.string.landing_button_secondary_import_success)
@@ -173,13 +176,8 @@ class LandingFragment : BaseFragment<FragmentLandingBinding>() {
             binding.buttonPositive.isEnabled = false
 
             try {
-                val initializer = walletSetup.newWallet()
-//                if (!initializer.overwriteVks .accountsCreated) {
-//                    binding.buttonPositive.isEnabled = true
-//                    binding.buttonPositive.setText(R.string.landing_button_primary)
-//                    throw IllegalStateException("New wallet should result in accounts table being created")
-//                }
-                mainActivity?.startSync(initializer)
+                walletSetup.newWallet()
+                mainActivity?.startSync()
 
                 binding.buttonPositive.isEnabled = true
                 binding.textMessage.setText(R.string.landing_create_success_message)

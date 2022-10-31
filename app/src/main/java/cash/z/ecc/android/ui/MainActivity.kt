@@ -21,28 +21,13 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
-import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import androidx.biometric.BiometricManager.Authenticators.*
 import androidx.biometric.BiometricPrompt
-import androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC
-import androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL
-import androidx.biometric.BiometricPrompt.ERROR_CANCELED
-import androidx.biometric.BiometricPrompt.ERROR_HW_NOT_PRESENT
-import androidx.biometric.BiometricPrompt.ERROR_HW_UNAVAILABLE
-import androidx.biometric.BiometricPrompt.ERROR_LOCKOUT
-import androidx.biometric.BiometricPrompt.ERROR_LOCKOUT_PERMANENT
-import androidx.biometric.BiometricPrompt.ERROR_NEGATIVE_BUTTON
-import androidx.biometric.BiometricPrompt.ERROR_NO_BIOMETRICS
-import androidx.biometric.BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL
-import androidx.biometric.BiometricPrompt.ERROR_NO_SPACE
-import androidx.biometric.BiometricPrompt.ERROR_TIMEOUT
-import androidx.biometric.BiometricPrompt.ERROR_UNABLE_TO_PROCESS
-import androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED
-import androidx.biometric.BiometricPrompt.ERROR_VENDOR
+import androidx.biometric.BiometricPrompt.*
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
@@ -54,14 +39,8 @@ import androidx.navigation.findNavController
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.databinding.DialogFirstUseMessageBinding
-import cash.z.ecc.android.di.component.MainActivitySubcomponent
-import cash.z.ecc.android.di.component.SynchronizerSubcomponent
-import cash.z.ecc.android.di.viewmodel.activityViewModel
-import cash.z.ecc.android.ext.goneIf
-import cash.z.ecc.android.ext.showCriticalMessage
-import cash.z.ecc.android.ext.showCriticalProcessorError
-import cash.z.ecc.android.ext.showScanFailure
-import cash.z.ecc.android.ext.showUninitializedError
+import cash.z.ecc.android.di.DependenciesHolder
+import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.feedback.Feedback
 import cash.z.ecc.android.feedback.FeedbackCoordinator
 import cash.z.ecc.android.feedback.LaunchMetric
@@ -71,7 +50,6 @@ import cash.z.ecc.android.feedback.Report.NonUserAction.FEEDBACK_STOPPED
 import cash.z.ecc.android.feedback.Report.NonUserAction.SYNC_START
 import cash.z.ecc.android.feedback.Report.Tap.COPY_ADDRESS
 import cash.z.ecc.android.feedback.Report.Tap.COPY_TRANSPARENT_ADDRESS
-import cash.z.ecc.android.sdk.Initializer
 import cash.z.ecc.android.sdk.SdkSynchronizer
 import cash.z.ecc.android.sdk.db.entity.ConfirmedTransaction
 import cash.z.ecc.android.sdk.exception.CompactBlockProcessorException
@@ -84,35 +62,26 @@ import cash.z.ecc.android.ui.util.MemoUtil
 import cash.z.ecc.android.util.twig
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(R.layout.main_activity) {
 
-    @Inject
-    lateinit var mainViewModel: MainViewModel
+    val mainViewModel: MainViewModel by viewModels()
 
-    @Inject
-    lateinit var feedback: Feedback
+    val feedback: Feedback = DependenciesHolder.feedback
 
-    @Inject
-    lateinit var feedbackCoordinator: FeedbackCoordinator
+    val feedbackCoordinator: FeedbackCoordinator = DependenciesHolder.feedbackCoordinator
 
-    @Inject
-    lateinit var clipboard: ClipboardManager
+    val clipboard: ClipboardManager = DependenciesHolder.clipboardManager
 
-    val isInitialized get() = ::synchronizerComponent.isInitialized
+    val historyViewModel: HistoryViewModel by viewModels()
 
-    val historyViewModel: HistoryViewModel by activityViewModel()
+    private var syncStarted = false
 
     private val mediaPlayer: MediaPlayer = MediaPlayer()
     private var snackbar: Snackbar? = null
     private var dialog: Dialog? = null
     private var ignoreScanFailure: Boolean = false
-
-    lateinit var component: MainActivitySubcomponent
-    lateinit var synchronizerComponent: SynchronizerSubcomponent
 
     var navController: NavController? = null
     private val navInitListeners: MutableList<() -> Unit> = mutableListOf()
@@ -123,16 +92,10 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
 
-    val latestHeight: BlockHeight? get() = if (isInitialized) {
-        synchronizerComponent.synchronizer().latestHeight
-    } else {
-        null
-    }
+    val latestHeight: BlockHeight?
+        get() = DependenciesHolder.synchronizer.latestHeight
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        component = ZcashWalletApp.component.mainActivitySubcomponent().create(this).also {
-            it.inject(this)
-        }
         lifecycleScope.launch {
             feedback.start()
         }
@@ -217,9 +180,14 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
         navController?.popBackStack(destination, inclusive)
     }
 
-    fun safeNavigate(navDirections: NavDirections) = safeNavigate(navDirections.actionId, navDirections.arguments, null)
+    fun safeNavigate(navDirections: NavDirections) =
+        safeNavigate(navDirections.actionId, navDirections.arguments, null)
 
-    fun safeNavigate(@IdRes destination: Int, args: Bundle? = null, extras: Navigator.Extras? = null) {
+    fun safeNavigate(
+        @IdRes destination: Int,
+        args: Bundle? = null,
+        extras: Navigator.Extras? = null
+    ) {
         if (navController == null) {
             navInitListeners.add {
                 try {
@@ -227,9 +195,9 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
                 } catch (t: Throwable) {
                     twig(
                         "WARNING: during callback, did not navigate to destination: R.id.${
-                        resources.getResourceEntryName(
-                            destination
-                        )
+                            resources.getResourceEntryName(
+                                destination
+                            )
                         } due to: $t"
                     )
                 }
@@ -240,29 +208,27 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
             } catch (t: Throwable) {
                 twig(
                     "WARNING: did not immediately navigate to destination: R.id.${
-                    resources.getResourceEntryName(
-                        destination
-                    )
+                        resources.getResourceEntryName(
+                            destination
+                        )
                     } due to: $t"
                 )
             }
         }
     }
 
-    fun startSync(initializer: Initializer, isRestart: Boolean = false) {
+    fun startSync(isRestart: Boolean = false) {
         twig("MainActivity.startSync")
-        if (!isInitialized || isRestart) {
+        if (!syncStarted || isRestart) {
+            syncStarted = true
             mainViewModel.setLoading(true)
-            synchronizerComponent = ZcashWalletApp.component.synchronizerSubcomponent().create(
-                initializer
-            )
-            twig("Synchronizer component created")
             feedback.report(SYNC_START)
-            synchronizerComponent.synchronizer().let { synchronizer ->
+            DependenciesHolder.synchronizer.let { synchronizer ->
                 synchronizer.onProcessorErrorHandler = ::onProcessorError
                 synchronizer.onChainErrorHandler = ::onChainError
                 synchronizer.onCriticalErrorHandler = ::onCriticalError
-                (synchronizer as SdkSynchronizer).processor.onScanMetricCompleteListener = ::onScanMetricComplete
+                (synchronizer as SdkSynchronizer).processor.onScanMetricCompleteListener =
+                    ::onScanMetricComplete
 
                 synchronizer.start(lifecycleScope)
                 mainViewModel.setSyncReady(true)
@@ -278,8 +244,15 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
         val reportingThreshold = 100
         if (isComplete) {
             if (batchMetrics.cumulativeItems > reportingThreshold) {
-                val network = synchronizerComponent.synchronizer().network.networkName
-                reportAction(Report.Performance.ScanRate(network, batchMetrics.cumulativeItems.toInt(), batchMetrics.cumulativeTime, batchMetrics.cumulativeIps))
+                val network = DependenciesHolder.synchronizer.network.networkName
+                reportAction(
+                    Report.Performance.ScanRate(
+                        network,
+                        batchMetrics.cumulativeItems.toInt(),
+                        batchMetrics.cumulativeTime,
+                        batchMetrics.cumulativeIps
+                    )
+                )
             }
         }
     }
@@ -312,7 +285,11 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
         mainViewModel.setLoading(isLoading, message)
     }
 
-    fun authenticate(description: String, title: String = getString(R.string.biometric_prompt_title), block: () -> Unit) {
+    fun authenticate(
+        description: String,
+        title: String = getString(R.string.biometric_prompt_title),
+        block: () -> Unit
+    ) {
         val callback = object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 twig("Authentication success with type: ${if (result.authenticationType == AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL) "DEVICE_CREDENTIAL" else if (result.authenticationType == AUTHENTICATION_RESULT_TYPE_BIOMETRIC) "BIOMETRIC" else "UNKNOWN"}  object: ${result.cryptoObject}")
@@ -322,10 +299,12 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
                 // but it doesn't hurt to hide the keyboard every time
                 hideKeyboard()
             }
+
             override fun onAuthenticationFailed() {
                 twig("Authentication failed!!!!")
                 showMessage("Authentication failed :(")
             }
+
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 twig("Authentication Error")
                 fun doNothing(message: String, interruptUser: Boolean = true) {
@@ -339,7 +318,10 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
                     ERROR_HW_NOT_PRESENT, ERROR_HW_UNAVAILABLE,
                     ERROR_NO_BIOMETRICS, ERROR_NO_DEVICE_CREDENTIAL -> {
                         twig("Warning: bypassing authentication because $errString [$errorCode]")
-                        showMessage("Please enable screen lock on this device to add security here!", true)
+                        showMessage(
+                            "Please enable screen lock on this device to add security here!",
+                            true
+                        )
                         block()
                     }
                     ERROR_LOCKOUT -> doNothing("Too many attempts. Try again in 30s.")
@@ -400,14 +382,14 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     fun copyAddress(view: View? = null) {
         reportTap(COPY_ADDRESS)
         lifecycleScope.launch {
-            copyText(synchronizerComponent.synchronizer().getAddress(), "Address")
+            copyText(DependenciesHolder.synchronizer.getAddress(), "Address")
         }
     }
 
     fun copyTransparentAddress(view: View? = null) {
         reportTap(COPY_TRANSPARENT_ADDRESS)
         lifecycleScope.launch {
-            copyText(synchronizerComponent.synchronizer().getTransparentAddress(), "T-Address")
+            copyText(DependenciesHolder.synchronizer.getTransparentAddress(), "T-Address")
         }
     }
 
@@ -432,8 +414,9 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
 
     suspend fun isValidAddress(address: String): Boolean {
         try {
-            return !synchronizerComponent.synchronizer().validateAddress(address).isNotValid
-        } catch (t: Throwable) { }
+            return !DependenciesHolder.synchronizer.validateAddress(address).isNotValid
+        } catch (t: Throwable) {
+        }
         return false
     }
 
@@ -457,7 +440,11 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
         Toast.makeText(this, message, if (linger) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
     }
 
-    fun showSnackbar(message: String, actionLabel: String = getString(android.R.string.ok), action: () -> Unit = {}): Snackbar {
+    fun showSnackbar(
+        message: String,
+        actionLabel: String = getString(android.R.string.ok),
+        action: () -> Unit = {}
+    ): Snackbar {
         return if (snackbar == null) {
             val view = findViewById<View>(R.id.main_activity_container)
             val snacks = Snackbar
@@ -618,7 +605,8 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
 
     suspend fun getSender(transaction: ConfirmedTransaction?): String {
         if (transaction == null) return getString(R.string.unknown)
-        return MemoUtil.findAddressInMemo(transaction, ::isValidAddress)?.toAbbreviatedAddress() ?: getString(R.string.unknown)
+        return MemoUtil.findAddressInMemo(transaction, ::isValidAddress)?.toAbbreviatedAddress()
+            ?: getString(R.string.unknown)
     }
 
     suspend fun String?.validateAddress(): String? {

@@ -46,11 +46,7 @@ object Deps {
             val ROOM_KTX =                  "androidx.room:room-ktx:$version"
         }
     }
-    object Dagger :             Version("2.25.2") {
-        val ANDROID_SUPPORT =               "com.google.dagger:dagger-android-support:$version"
-        val ANDROID_PROCESSOR =             "com.google.dagger:dagger-android-processor:$version"
-        val COMPILER =                      "com.google.dagger:dagger-compiler:$version"
-    }
+
     object Google {
         // solves error: Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-26.0-android.jar (com.google.guava:guava:26.0-android) and listenablefuture-1.0.jar (com.google.guava:listenablefuture:1.0)
         // per this recommendation from Chris Povirk, given guava's decision to split ListenableFuture away from Guava: https://groups.google.com/d/msg/guava-discuss/GghaKwusjcY/bCIAKfzOEwAJ

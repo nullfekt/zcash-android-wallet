@@ -7,9 +7,8 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.StandardCharsets
 import java.util.*
-import javax.inject.Inject
 
-class LockBox @Inject constructor(private val appContext: Context) : LockBoxPlugin {
+class LockBox(private val appContext: Context) : LockBoxPlugin {
 
     private val maxLength: Int = 50
 

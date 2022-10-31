@@ -2,6 +2,7 @@ package cash.z.ecc.android.ui.send
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
@@ -20,39 +21,42 @@ import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
-class AutoShieldViewModel @Inject constructor() : ViewModel() {
+class AutoShieldViewModel : ViewModel() {
 
-    @Inject
-    lateinit var synchronizer: Synchronizer
+    private val synchronizer: Synchronizer = DependenciesHolder.synchronizer
 
-    @Inject
-    lateinit var lockBox: LockBox
+    private val lockBox: LockBox = DependenciesHolder.lockBox
 
     var latestBalance: BalanceModel? = null
 
-    val balances get() = combineTransform(
-        synchronizer.orchardBalances,
-        synchronizer.saplingBalances,
-        synchronizer.transparentBalances,
-    ) { o, s, t ->
-        BalanceModel(o, s, t).let {
-            latestBalance = it
-            emit(it)
+    val balances
+        get() = combineTransform(
+            synchronizer.orchardBalances,
+            synchronizer.saplingBalances,
+            synchronizer.transparentBalances,
+        ) { o, s, t ->
+            BalanceModel(o, s, t).let {
+                latestBalance = it
+                emit(it)
+            }
         }
-    }
 
-    val statuses get() = combineTransform(synchronizer.saplingBalances, synchronizer.pendingTransactions, synchronizer.processorInfo) { balance, pending, info ->
-        val unconfirmed = pending.filter { !it.isConfirmed(info.networkBlockHeight) }
-        val unmined = pending.filter { it.isSubmitSuccess() && !it.isMined() }
-        val pending = balance?.pending?.value ?: 0
-        emit(StatusModel(unmined, unconfirmed, pending, info.networkBlockHeight))
-    }
+    val statuses
+        get() = combineTransform(
+            synchronizer.saplingBalances,
+            synchronizer.pendingTransactions,
+            synchronizer.processorInfo
+        ) { balance, pending, info ->
+            val unconfirmed = pending.filter { !it.isConfirmed(info.networkBlockHeight) }
+            val unmined = pending.filter { it.isSubmitSuccess() && !it.isMined() }
+            val pending = balance?.pending?.value ?: 0
+            emit(StatusModel(unmined, unconfirmed, pending, info.networkBlockHeight))
+        }
 
     private fun PendingTransaction.isConfirmed(networkBlockHeight: BlockHeight?): Boolean {
         return networkBlockHeight?.let { height ->
-             isMined() && (height.value - minedHeight + 1) > 10
+            isMined() && (height.value - minedHeight + 1) > 10
         } ?: false
     }
 
@@ -90,7 +94,11 @@ class AutoShieldViewModel @Inject constructor() : ViewModel() {
                     synchronizer.network
                 )
             }
-            synchronizer.shieldFunds(sk, tsk, "${ZcashSdk.DEFAULT_SHIELD_FUNDS_MEMO_PREFIX}\nAll UTXOs from $addr").onEach { tx ->
+            synchronizer.shieldFunds(
+                sk,
+                tsk,
+                "${ZcashSdk.DEFAULT_SHIELD_FUNDS_MEMO_PREFIX}\nAll UTXOs from $addr"
+            ).onEach { tx ->
                 twig("Received shielding txUpdate: ${tx?.toString()}")
 //                updateMetrics(it)
 //                reportFailures(it)
@@ -105,10 +113,13 @@ class AutoShieldViewModel @Inject constructor() : ViewModel() {
     ) {
         val balanceShielded: String = saplingBalance?.available.toDisplay()
         val balanceTransparent: String = transparentBalance?.available.toDisplay()
-        val balanceTotal: String = ((saplingBalance?.available ?: Zatoshi(0)) + (transparentBalance?.available ?: Zatoshi(0))).toDisplay()
+        val balanceTotal: String =
+            ((saplingBalance?.available ?: Zatoshi(0)) + (transparentBalance?.available
+                ?: Zatoshi(0))).toDisplay()
         val canAutoShield: Boolean = (transparentBalance?.available?.value ?: 0) > 0L
 
-        val maxLength = maxOf(balanceShielded.length, balanceTransparent.length, balanceTotal.length)
+        val maxLength =
+            maxOf(balanceShielded.length, balanceTransparent.length, balanceTotal.length)
         val paddedShielded = pad(balanceShielded)
         val paddedTransparent = pad(balanceTransparent)
         val paddedTotal = pad(balanceTotal)

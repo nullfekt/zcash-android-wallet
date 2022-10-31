@@ -1,14 +1,13 @@
 package cash.z.ecc.android.ui.scan
 
 import androidx.lifecycle.ViewModel
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.util.twig
-import javax.inject.Inject
 
-class ScanViewModel @Inject constructor() : ViewModel() {
+class ScanViewModel : ViewModel() {
 
-    @Inject
-    lateinit var synchronizer: Synchronizer
+    private val synchronizer: Synchronizer = DependenciesHolder.synchronizer
 
     val networkName get() = synchronizer.network.networkName
 

@@ -6,17 +6,13 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageProxy
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentScanBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
-import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.onClickNavBack
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.SCAN_BACK
@@ -32,9 +28,9 @@ class ScanFragment : BaseFragment<FragmentScanBinding>() {
 
     override val screen = Report.Screen.SCAN
 
-    private val viewModel: ScanViewModel by viewModel()
+    private val viewModel: ScanViewModel by viewModels()
 
-    private val sendViewModel: SendViewModel by activityViewModel()
+    private val sendViewModel: SendViewModel by activityViewModels()
 
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
 

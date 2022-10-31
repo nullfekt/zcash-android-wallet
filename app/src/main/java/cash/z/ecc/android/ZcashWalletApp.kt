@@ -4,26 +4,18 @@ import android.app.Application
 import android.content.Context
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
-import cash.z.ecc.android.di.component.AppComponent
-import cash.z.ecc.android.di.component.DaggerAppComponent
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.tryWithWarning
 import cash.z.ecc.android.feedback.FeedbackCoordinator
-import cash.z.ecc.android.sdk.ext.ZcashSdk
-import cash.z.ecc.android.sdk.internal.Twig
 import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.model.ZcashNetwork
 import cash.z.ecc.android.util.twig
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
+import kotlinx.coroutines.*
 
 class ZcashWalletApp : Application(), CameraXConfig.Provider {
 
-    @Inject
-    lateinit var coordinator: FeedbackCoordinator
+    private val coordinator: FeedbackCoordinator
+        get() = DependenciesHolder.feedbackCoordinator
 
     lateinit var defaultNetwork: ZcashNetwork
 
@@ -74,8 +66,6 @@ class ZcashWalletApp : Application(), CameraXConfig.Provider {
         creationTime = System.currentTimeMillis()
 
         defaultNetwork = ZcashNetwork.from(resources.getInteger(R.integer.zcash_network_id))
-        component = DaggerAppComponent.factory().create(this)
-        component.inject(this)
         feedbackScope.launch {
             coordinator.feedback.start()
         }
@@ -87,7 +77,6 @@ class ZcashWalletApp : Application(), CameraXConfig.Provider {
 
     companion object {
         lateinit var instance: ZcashWalletApp
-        lateinit var component: AppComponent
     }
 
     /**

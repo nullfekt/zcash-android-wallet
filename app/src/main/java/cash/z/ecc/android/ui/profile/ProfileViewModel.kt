@@ -3,6 +3,7 @@ package cash.z.ecc.android.ui.profile
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import cash.z.ecc.android.ZcashWalletApp
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Initializer
@@ -16,22 +17,16 @@ import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Named
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-class ProfileViewModel @Inject constructor() : ViewModel() {
+class ProfileViewModel : ViewModel() {
 
-    @Inject
-    lateinit var synchronizer: Synchronizer
+    val synchronizer: Synchronizer = DependenciesHolder.synchronizer
 
-    @Inject
-    lateinit var lockBox: LockBox
+    private val lockBox: LockBox = DependenciesHolder.lockBox
 
-    @Inject
-    @Named(Const.Name.APP_PREFS)
-    lateinit var prefs: LockBox
+    private val prefs: LockBox = DependenciesHolder.prefs
 
     // TODO: track this in the app and then fetch. For now, just estimate the blocks per second.
     val bps = 40
@@ -156,10 +151,12 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
         val duration = (blocks.value / bps.toDouble()).toDuration(DurationUnit.SECONDS)
         return duration.toString(DurationUnit.MINUTES).replace("m", " minutes")
     }
+
     fun blocksToMinutesString(blocks: Int): String {
         val duration = (blocks / bps.toDouble()).toDuration(DurationUnit.SECONDS)
         return duration.toString(DurationUnit.MINUTES).replace("m", " minutes")
     }
+
     fun blocksToMinutesString(blocks: Long): String {
         val duration = (blocks / bps.toDouble()).toDuration(DurationUnit.SECONDS)
         return duration.toString(DurationUnit.MINUTES).replace("m", " minutes")

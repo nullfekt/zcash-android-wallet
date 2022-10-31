@@ -7,10 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentAutoShieldBinding
-import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.ext.invisibleIf
 import cash.z.ecc.android.ext.requireApplicationContext
@@ -18,13 +18,7 @@ import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.preference.Preferences
 import cash.z.ecc.android.preference.model.get
 import cash.z.ecc.android.preference.model.put
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
-import cash.z.ecc.android.sdk.db.entity.isCancelled
-import cash.z.ecc.android.sdk.db.entity.isCreated
-import cash.z.ecc.android.sdk.db.entity.isCreating
-import cash.z.ecc.android.sdk.db.entity.isFailedEncoding
-import cash.z.ecc.android.sdk.db.entity.isFailure
-import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
+import cash.z.ecc.android.sdk.db.entity.*
 import cash.z.ecc.android.sdk.ext.collectWith
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.util.twig
@@ -36,7 +30,7 @@ import java.time.Clock
 class AutoShieldFragment : BaseFragment<FragmentAutoShieldBinding>() {
     override val screen = Report.Screen.AUTO_SHIELD_FINAL
 
-    private val viewModel: AutoShieldViewModel by viewModel()
+    private val viewModel: AutoShieldViewModel by viewModels()
 
     private val uiModels = MutableStateFlow(UiModel())
 

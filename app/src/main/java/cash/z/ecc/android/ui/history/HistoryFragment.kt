@@ -3,13 +3,13 @@ package cash.z.ecc.android.ui.history
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentHistoryBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
 import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.HISTORY_BACK
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
     override val screen = Report.Screen.HISTORY
 
-    private val viewModel: HistoryViewModel by activityViewModel()
+    private val viewModel: HistoryViewModel by activityViewModels()
 
     private lateinit var transactionAdapter: TransactionAdapter<ConfirmedTransaction>
 

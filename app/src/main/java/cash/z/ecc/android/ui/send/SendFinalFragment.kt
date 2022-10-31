@@ -5,20 +5,15 @@ import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentSendFinalBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
 import cash.z.ecc.android.ext.WalletZecFormmatter
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.SEND_FINAL_CLOSE
 import cash.z.ecc.android.sdk.SdkSynchronizer
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
-import cash.z.ecc.android.sdk.db.entity.isCancelled
-import cash.z.ecc.android.sdk.db.entity.isCreating
-import cash.z.ecc.android.sdk.db.entity.isFailedEncoding
-import cash.z.ecc.android.sdk.db.entity.isFailure
-import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
+import cash.z.ecc.android.sdk.db.entity.*
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
 import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.ui.base.BaseFragment
@@ -29,7 +24,7 @@ import kotlinx.coroutines.flow.onEach
 class SendFinalFragment : BaseFragment<FragmentSendFinalBinding>() {
     override val screen = Report.Screen.SEND_FINAL
 
-    private val sendViewModel: SendViewModel by activityViewModel()
+    private val sendViewModel: SendViewModel by activityViewModels()
 
     override fun inflate(inflater: LayoutInflater): FragmentSendFinalBinding =
         FragmentSendFinalBinding.inflate(inflater)

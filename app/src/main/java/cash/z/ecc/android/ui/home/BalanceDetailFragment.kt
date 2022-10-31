@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.databinding.FragmentBalanceDetailBinding
-import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.ext.onClickNavBack
 import cash.z.ecc.android.ext.toAppColor
@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 
 class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
 
-    private val viewModel: BalanceDetailViewModel by viewModel()
+    private val viewModel: BalanceDetailViewModel by viewModels()
     private var lastSignal: BlockHeight? = null
 
     override fun inflate(inflater: LayoutInflater): FragmentBalanceDetailBinding =
@@ -125,7 +125,10 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
         binding.textStatus.text = status.toStatus()
         if (status.missingBlocks > 100) {
             binding.textBlockHeightPrefix.text = "Processing "
-            binding.textBlockHeight.text = String.format("%,d", status.info.lastScannedHeight?.value ?: 0) + " of " + String.format("%,d", status.info.networkBlockHeight?.value ?: 0)
+            binding.textBlockHeight.text = String.format(
+                "%,d",
+                status.info.lastScannedHeight?.value ?: 0
+            ) + " of " + String.format("%,d", status.info.networkBlockHeight?.value ?: 0)
         } else {
             status.info.lastScannedHeight.let { height ->
                 if (height == null) {
@@ -133,7 +136,8 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
                     binding.textBlockHeight.text = ""
                 } else {
                     binding.textBlockHeightPrefix.text = "Balances as of block "
-                    binding.textBlockHeight.text = String.format("%,d", status.info.lastScannedHeight?.value ?: 0)
+                    binding.textBlockHeight.text =
+                        String.format("%,d", status.info.lastScannedHeight?.value ?: 0)
                     sendNewBlockSignal(status.info.lastScannedHeight)
                 }
             }
@@ -185,13 +189,29 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
 
         status += when {
             hasPendingTransparentBalance && hasPendingShieldedBalance -> {
-                "Awaiting ${pendingShieldedBalance.convertZatoshiToZecString(8)} ${ZcashWalletApp.instance.getString(R.string.symbol)} in shielded funds and ${pendingTransparentBalance.convertZatoshiToZecString(8)} ${ZcashWalletApp.instance.getString(R.string.symbol)} in transparent funds"
+                "Awaiting ${pendingShieldedBalance.convertZatoshiToZecString(8)} ${
+                    ZcashWalletApp.instance.getString(
+                        R.string.symbol
+                    )
+                } in shielded funds and ${pendingTransparentBalance.convertZatoshiToZecString(8)} ${
+                    ZcashWalletApp.instance.getString(
+                        R.string.symbol
+                    )
+                } in transparent funds"
             }
             hasPendingShieldedBalance -> {
-                "Awaiting ${pendingShieldedBalance.convertZatoshiToZecString(8)} ${ZcashWalletApp.instance.getString(R.string.symbol)} in shielded funds"
+                "Awaiting ${pendingShieldedBalance.convertZatoshiToZecString(8)} ${
+                    ZcashWalletApp.instance.getString(
+                        R.string.symbol
+                    )
+                } in shielded funds"
             }
             hasPendingTransparentBalance -> {
-                "Awaiting ${pendingTransparentBalance.convertZatoshiToZecString(8)} ${ZcashWalletApp.instance.getString(R.string.symbol)} in transparent funds"
+                "Awaiting ${pendingTransparentBalance.convertZatoshiToZecString(8)} ${
+                    ZcashWalletApp.instance.getString(
+                        R.string.symbol
+                    )
+                } in transparent funds"
             }
             else -> ""
         }

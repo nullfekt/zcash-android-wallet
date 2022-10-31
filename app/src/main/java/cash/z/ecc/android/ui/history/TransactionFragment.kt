@@ -8,34 +8,23 @@ import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.transition.ChangeBounds
-import androidx.transition.ChangeClipBounds
-import androidx.transition.ChangeTransform
-import androidx.transition.Transition
-import androidx.transition.TransitionSet
+import androidx.transition.*
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentTransactionBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
-import cash.z.ecc.android.ext.Const
-import cash.z.ecc.android.ext.gone
-import cash.z.ecc.android.ext.invisible
-import cash.z.ecc.android.ext.onClickNavBack
-import cash.z.ecc.android.ext.toAppColor
-import cash.z.ecc.android.ext.toColoredSpan
-import cash.z.ecc.android.ext.visible
+import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.history.HistoryViewModel.UiModel
 import cash.z.ecc.android.util.twig
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TransactionFragment : BaseFragment<FragmentTransactionBinding>() {
     override val screen = Report.Screen.TRANSACTION
-    private val viewModel: HistoryViewModel by activityViewModel()
+    private val viewModel: HistoryViewModel by activityViewModels()
 
     var isMemoExpanded: Boolean = false
 
@@ -74,8 +63,14 @@ class TransactionFragment : BaseFragment<FragmentTransactionBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            ViewCompat.setTransitionName(topBoxValue, "test_amount_anim_${viewModel.selectedTransaction.value?.id}")
-            ViewCompat.setTransitionName(topBoxBackground, "test_bg_anim_${viewModel.selectedTransaction.value?.id}")
+            ViewCompat.setTransitionName(
+                topBoxValue,
+                "test_amount_anim_${viewModel.selectedTransaction.value?.id}"
+            )
+            ViewCompat.setTransitionName(
+                topBoxBackground,
+                "test_bg_anim_${viewModel.selectedTransaction.value?.id}"
+            )
             backButtonHitArea.onClickNavBack { tapped(Report.Tap.TRANSACTION_BACK) }
 
             lifecycleScope.launch {
@@ -114,10 +109,19 @@ class TransactionFragment : BaseFragment<FragmentTransactionBinding>() {
                     buttonExplore.setOnClickListener(exploreOnClick)
                     textBlockHeight.setOnClickListener(exploreOnClick)
 
-                    uiModel.fee?.let { subwaySpotFee.visible(); subwayLabelFee.visible(); subwayLabelFee.text = it }
-                    uiModel.source?.let { subwaySpotSource.visible(); subwayLabelSource.visible(); subwayLabelSource.text = it }
-                    uiModel.toAddressLabel()?.let { subwaySpotAddress.visible(); subwayLabelAddress.visible(); subwayLabelAddress.text = it }
-                    uiModel.toAddressClickListener()?.let { subwayLabelAddress.setOnClickListener(it) }
+                    uiModel.fee?.let {
+                        subwaySpotFee.visible(); subwayLabelFee.visible(); subwayLabelFee.text = it
+                    }
+                    uiModel.source?.let {
+                        subwaySpotSource.visible(); subwayLabelSource.visible(); subwayLabelSource.text =
+                        it
+                    }
+                    uiModel.toAddressLabel()?.let {
+                        subwaySpotAddress.visible(); subwayLabelAddress.visible(); subwayLabelAddress.text =
+                        it
+                    }
+                    uiModel.toAddressClickListener()
+                        ?.let { subwayLabelAddress.setOnClickListener(it) }
 
                     // TODO: remove logic from sections below and add more fields or extension functions to UiModel
                     uiModel.confirmation?.let {
@@ -131,9 +135,24 @@ class TransactionFragment : BaseFragment<FragmentTransactionBinding>() {
                     }
 
                     uiModel.memo?.let {
-                        hitAreaMemoSubway.setOnClickListener { _ -> onToggleMemo(!isMemoExpanded, it) }
-                        hitAreaMemoIcon.setOnClickListener { _ -> onToggleMemo(!isMemoExpanded, it) }
-                        subwayLabelMemo.setOnClickListener { _ -> onToggleMemo(!isMemoExpanded, it) }
+                        hitAreaMemoSubway.setOnClickListener { _ ->
+                            onToggleMemo(
+                                !isMemoExpanded,
+                                it
+                            )
+                        }
+                        hitAreaMemoIcon.setOnClickListener { _ ->
+                            onToggleMemo(
+                                !isMemoExpanded,
+                                it
+                            )
+                        }
+                        subwayLabelMemo.setOnClickListener { _ ->
+                            onToggleMemo(
+                                !isMemoExpanded,
+                                it
+                            )
+                        }
                         subwayLabelMemo.setOnLongClickListener { _ ->
                             mainActivity?.copyText(it, "Memo")
                             true
@@ -158,7 +177,8 @@ class TransactionFragment : BaseFragment<FragmentTransactionBinding>() {
             binding.subwayLabelMemo.invalidate()
             // don't impede the ability to scroll
             binding.groupMemoIcon.gone()
-            binding.subwayLabelMemo.backgroundTintList = ColorStateList.valueOf(R.color.tx_text_light_dimmed.toAppColor())
+            binding.subwayLabelMemo.backgroundTintList =
+                ColorStateList.valueOf(R.color.tx_text_light_dimmed.toAppColor())
             binding.subwaySpotMemoContent.colorFilter = invertingMatrix
             binding.subwaySpotMemoContent.rotation = 90.0f
         } else {
@@ -167,7 +187,8 @@ class TransactionFragment : BaseFragment<FragmentTransactionBinding>() {
             binding.subwayLabelMemo.invalidate()
             twig("setting memo text to: with a memo")
             binding.groupMemoIcon.visible()
-            binding.subwayLabelMemo.backgroundTintList = ColorStateList.valueOf(R.color.tx_primary.toAppColor())
+            binding.subwayLabelMemo.backgroundTintList =
+                ColorStateList.valueOf(R.color.tx_primary.toAppColor())
             binding.subwaySpotMemoContent.colorFilter = null
             binding.subwaySpotMemoContent.rotation = 0.0f
         }
@@ -193,7 +214,7 @@ class TransactionFragment : BaseFragment<FragmentTransactionBinding>() {
                 R.string.transaction_prefix_to
             }
         )
-        return "$prefix ${address?.toAbbreviatedAddress() ?: "Unknown" }".let {
+        return "$prefix ${address?.toAbbreviatedAddress() ?: "Unknown"}".let {
             it.toColoredSpan(R.color.tx_text_light_dimmed, if (address == null) it else prefix)
         }
     }

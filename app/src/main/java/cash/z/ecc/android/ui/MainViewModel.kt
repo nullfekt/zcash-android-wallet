@@ -5,9 +5,8 @@ import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
 
-class MainViewModel @Inject constructor() : ViewModel() {
+class MainViewModel : ViewModel() {
     private val _loadingMessage = MutableStateFlow<String?>("\u23F3 Loading...")
     private val _syncReady = MutableStateFlow(false)
     val loadingMessage: StateFlow<String?> get() = _loadingMessage

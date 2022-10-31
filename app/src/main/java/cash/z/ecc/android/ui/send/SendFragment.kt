@@ -14,11 +14,11 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.ImageViewCompat
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentSendBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
 import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Tap.*
@@ -42,7 +42,7 @@ class SendFragment :
     private var maxZatoshi: Long? = null
     private var availableZatoshi: Long? = null
 
-    val sendViewModel: SendViewModel by activityViewModel()
+    val sendViewModel: SendViewModel by activityViewModels()
 
     override fun inflate(inflater: LayoutInflater): FragmentSendBinding =
         FragmentSendBinding.inflate(inflater)
@@ -123,8 +123,10 @@ class SendFragment :
 
     private fun onMemoUpdated() {
         val totalLength = sendViewModel.createMemoToSend().length
-        binding.textLayoutMemo.helperText = "$totalLength/${ZcashSdk.MAX_MEMO_SIZE} ${getString(R.string.send_memo_chars_abbreviation)}"
-        val color = if (totalLength > ZcashSdk.MAX_MEMO_SIZE) R.color.zcashRed else R.color.text_light_dimmed
+        binding.textLayoutMemo.helperText =
+            "$totalLength/${ZcashSdk.MAX_MEMO_SIZE} ${getString(R.string.send_memo_chars_abbreviation)}"
+        val color =
+            if (totalLength > ZcashSdk.MAX_MEMO_SIZE) R.color.zcashRed else R.color.text_light_dimmed
         binding.textLayoutMemo.setHelperTextColor(ColorStateList.valueOf(color.toAppColor()))
     }
 
@@ -191,21 +193,28 @@ class SendFragment :
 
     private fun onSubmit(unused: EditText? = null) {
         sendViewModel.toAddress = binding.inputZcashAddress.text.toString()
-        sendViewModel.validate(requireContext(), availableZatoshi, maxZatoshi).onFirstWith(resumedScope) { errorMessage ->
-            if (errorMessage == null) {
-                val symbol = getString(R.string.symbol)
-                mainActivity?.authenticate("${getString(R.string.send_confirmation_prompt)}\n${WalletZecFormmatter.toZecStringFull(sendViewModel.zatoshiAmount)} $symbol ${getString(R.string.send_final_to)}\n${sendViewModel.toAddress.toAbbreviatedAddress()}") {
+        sendViewModel.validate(requireContext(), availableZatoshi, maxZatoshi)
+            .onFirstWith(resumedScope) { errorMessage ->
+                if (errorMessage == null) {
+                    val symbol = getString(R.string.symbol)
+                    mainActivity?.authenticate(
+                        "${getString(R.string.send_confirmation_prompt)}\n${
+                            WalletZecFormmatter.toZecStringFull(
+                                sendViewModel.zatoshiAmount
+                            )
+                        } $symbol ${getString(R.string.send_final_to)}\n${sendViewModel.toAddress.toAbbreviatedAddress()}"
+                    ) {
 //                    sendViewModel.funnel(Send.AddressPageComplete)
-                    mainActivity?.safeNavigate(R.id.action_nav_send_to_nav_send_final)
-                }
-            } else {
-                resumedScope.launch {
-                    binding.textAddressError.text = errorMessage
-                    delay(2500L)
-                    binding.textAddressError.text = ""
+                        mainActivity?.safeNavigate(R.id.action_nav_send_to_nav_send_final)
+                    }
+                } else {
+                    resumedScope.launch {
+                        binding.textAddressError.text = errorMessage
+                        delay(2500L)
+                        binding.textAddressError.text = ""
+                    }
                 }
             }
-        }
     }
 
     private fun onMax() {
@@ -306,7 +315,10 @@ class SendFragment :
                 group.visible()
                 addressTextView.text = address.toAbbreviatedAddress(16, 16)
                 checkIcon.goneIf(!selected)
-                ImageViewCompat.setImageTintList(shieldIcon, ColorStateList.valueOf(if (selected) R.color.colorPrimary.toAppColor() else R.color.zcashWhite_12.toAppColor()))
+                ImageViewCompat.setImageTintList(
+                    shieldIcon,
+                    ColorStateList.valueOf(if (selected) R.color.colorPrimary.toAppColor() else R.color.zcashWhite_12.toAppColor())
+                )
                 addressLabel.setText(if (address == userShieldedAddr) R.string.send_banner_address_user else R.string.send_banner_address_unknown)
                 if (address == userTransparentAddr) addressLabel.setText("Your Auto-Shielding Address")
                 addressLabel.setTextColor(if (selected) R.color.colorPrimary.toAppColor() else R.color.text_light.toAppColor())
@@ -349,7 +361,8 @@ class SendFragment :
     private var lastUsedAddress: String? = null
     private suspend fun loadLastUsedAddress(): String? {
         if (lastUsedAddress == null) {
-            lastUsedAddress = sendViewModel.synchronizer.sentTransactions.first().firstOrNull { !it.toAddress.isNullOrEmpty() }?.toAddress
+            lastUsedAddress = sendViewModel.synchronizer.sentTransactions.first()
+                .firstOrNull { !it.toAddress.isNullOrEmpty() }?.toAddress
             updateLastUsedBanner(lastUsedAddress, binding.imageLastUsedAddressSelected.isVisible)
         }
         return lastUsedAddress

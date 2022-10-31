@@ -3,6 +3,7 @@ package cash.z.ecc.android.ui.setup
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import cash.z.ecc.android.ZcashWalletApp
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.ext.failWith
 import cash.z.ecc.android.feedback.Feedback
@@ -12,34 +13,26 @@ import cash.z.ecc.android.sdk.Initializer
 import cash.z.ecc.android.sdk.exception.InitializerException
 import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.sdk.model.LightWalletEndpoint
+import cash.z.ecc.android.sdk.model.ZcashNetwork
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.type.UnifiedViewingKey
-import cash.z.ecc.android.sdk.model.ZcashNetwork
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel.WalletSetupState.*
 import cash.z.ecc.android.util.twig
 import cash.z.ecc.kotlin.mnemonic.Mnemonics
-import com.bugsnag.android.Bugsnag
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Named
 
-class WalletSetupViewModel @Inject constructor() : ViewModel() {
+class WalletSetupViewModel : ViewModel() {
 
-    @Inject
-    lateinit var mnemonics: Mnemonics
+    private val mnemonics: Mnemonics = DependenciesHolder.mnemonics
 
-    @Inject
-    lateinit var lockBox: LockBox
+    private val lockBox: LockBox = DependenciesHolder.lockBox
 
-    @Inject
-    @Named(Const.Name.APP_PREFS)
-    lateinit var prefs: LockBox
+    private val prefs: LockBox = DependenciesHolder.prefs
 
-    @Inject
-    lateinit var feedback: Feedback
+    private val feedback: Feedback = DependenciesHolder.feedback
 
     enum class WalletSetupState {
         SEED_WITH_BACKUP, SEED_WITHOUT_BACKUP, NO_SEED
@@ -69,25 +62,28 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
         return null
     }
 
-    suspend fun newWallet(): Initializer {
+    suspend fun newWallet() {
         val network = ZcashWalletApp.instance.defaultNetwork
         twig("Initializing new ${network.networkName} wallet")
         with(mnemonics) {
             storeWallet(nextMnemonic(nextEntropy()), network, loadNearestBirthday(network))
         }
-        return openStoredWallet()
+        openStoredWallet()
     }
 
-    suspend fun importWallet(seedPhrase: String, birthdayHeight: BlockHeight?): Initializer {
+    suspend fun importWallet(seedPhrase: String, birthdayHeight: BlockHeight?) {
         val network = ZcashWalletApp.instance.defaultNetwork
         twig("Importing ${network.networkName} wallet. Requested birthday: $birthdayHeight")
-        storeWallet(seedPhrase.toCharArray(), network, birthdayHeight ?: loadNearestBirthday(network))
-        return openStoredWallet()
+        storeWallet(
+            seedPhrase.toCharArray(),
+            network,
+            birthdayHeight ?: loadNearestBirthday(network)
+        )
+        openStoredWallet()
     }
 
-    suspend fun openStoredWallet(): Initializer {
-        val config = loadConfig()
-        return ZcashWalletApp.component.initializerSubcomponent().create(config).initializer()
+    suspend fun openStoredWallet() {
+        DependenciesHolder.initializerComponent.createInitializer(loadConfig())
     }
 
     /**
@@ -98,7 +94,8 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
         twig("Loading config variables")
         var overwriteVks = false
         val network = ZcashWalletApp.instance.defaultNetwork
-        val vk = loadUnifiedViewingKey() ?: onMissingViewingKey(network).also { overwriteVks = true }
+        val vk =
+            loadUnifiedViewingKey() ?: onMissingViewingKey(network).also { overwriteVks = true }
         val birthdayHeight = loadBirthdayHeight() ?: onMissingBirthday(network)
         val host = prefs[Const.Pref.SERVER_HOST] ?: Const.Default.Server.HOST
         val port = prefs[Const.Pref.SERVER_PORT] ?: Const.Default.Server.PORT
@@ -134,7 +131,6 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
             .all.map { it.key }.joinToString().let { keyNames ->
                 "${Const.Backup.VIEWING_KEY}, ${Const.Backup.PUBLIC_KEY}".let { missingKeys ->
                     // is there a typo or change in how the value is labelled?
-                    Bugsnag.leaveBreadcrumb("One of $missingKeys not found in keySet: $keyNames")
                     // for troubleshooting purposes, let's see if we CAN derive the vk from the seed in these situations
                     var recoveryViewingKey: UnifiedViewingKey? = null
                     var ableToLoadSeed = false
@@ -142,10 +138,11 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
                         val seed = lockBox.getBytes(Const.Backup.SEED)!!
                         ableToLoadSeed = true
                         twig("Recover UVK: Seed found")
-                        recoveryViewingKey = DerivationTool.deriveUnifiedViewingKeys(seed, network)[0]
+                        recoveryViewingKey =
+                            DerivationTool.deriveUnifiedViewingKeys(seed, network)[0]
                         twig("Recover UVK: successfully derived UVK from seed")
                     } catch (t: Throwable) {
-                        Bugsnag.leaveBreadcrumb("Failed while trying to recover UVK due to: $t")
+                        twig("Failed while trying to recover UVK due to: $t")
                     }
 
                     // this will happen during rare upgrade scenarios when the user migrates from a seed-only wallet to this vk-based version
@@ -168,10 +165,11 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
             }
     }
 
-    private suspend fun onMissingBirthday(network: ZcashNetwork): BlockHeight = failWith(InitializerException.MissingBirthdayException) {
-        twig("Recover Birthday: falling back to sapling birthday")
-        loadNearestBirthday(network)
-    }
+    private suspend fun onMissingBirthday(network: ZcashNetwork): BlockHeight =
+        failWith(InitializerException.MissingBirthdayException) {
+            twig("Recover Birthday: falling back to sapling birthday")
+            loadNearestBirthday(network)
+        }
 
     private suspend fun loadNearestBirthday(network: ZcashNetwork) =
         BlockHeight.ofLatestCheckpoint(
@@ -196,7 +194,7 @@ class WalletSetupViewModel @Inject constructor() : ViewModel() {
     ) {
         check(!lockBox.getBoolean(Const.Backup.HAS_SEED)) {
             "Error! Cannot store a seed when one already exists! This would overwrite the" +
-                " existing seed and could lead to a loss of funds if the user has no backup!"
+                    " existing seed and could lead to a loss of funds if the user has no backup!"
         }
 
         storeBirthday(birthday)

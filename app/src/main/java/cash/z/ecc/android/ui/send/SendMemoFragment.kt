@@ -4,26 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.activityViewModels
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentSendMemoBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
 import cash.z.ecc.android.ext.gone
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.ext.onEditorActionDone
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Funnel.Send
-import cash.z.ecc.android.feedback.Report.Tap.SEND_MEMO_CLEAR
-import cash.z.ecc.android.feedback.Report.Tap.SEND_MEMO_EXCLUDE
-import cash.z.ecc.android.feedback.Report.Tap.SEND_MEMO_INCLUDE
-import cash.z.ecc.android.feedback.Report.Tap.SEND_MEMO_NEXT
-import cash.z.ecc.android.feedback.Report.Tap.SEND_MEMO_SKIP
+import cash.z.ecc.android.feedback.Report.Tap.*
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.util.INCLUDE_MEMO_PREFIX_STANDARD
 
 class SendMemoFragment : BaseFragment<FragmentSendMemoBinding>() {
     override val screen = Report.Screen.SEND_MEMO
 
-    val sendViewModel: SendViewModel by activityViewModel()
+    val sendViewModel: SendViewModel by activityViewModels()
 
     override fun inflate(inflater: LayoutInflater): FragmentSendMemoBinding =
         FragmentSendMemoBinding.inflate(inflater)
@@ -59,7 +55,8 @@ class SendMemoFragment : BaseFragment<FragmentSendMemoBinding>() {
         }
 
         sendViewModel.afterInitFromAddress {
-            binding.textIncludedAddress.text = "$INCLUDE_MEMO_PREFIX_STANDARD ${sendViewModel.fromAddress}"
+            binding.textIncludedAddress.text =
+                "$INCLUDE_MEMO_PREFIX_STANDARD ${sendViewModel.fromAddress}"
         }
 
         binding.textIncludedAddress.gone()

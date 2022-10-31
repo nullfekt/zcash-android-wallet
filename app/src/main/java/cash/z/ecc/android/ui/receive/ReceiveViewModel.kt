@@ -1,14 +1,13 @@
 package cash.z.ecc.android.ui.receive
 
 import androidx.lifecycle.ViewModel
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.util.twig
-import javax.inject.Inject
 
-class ReceiveViewModel @Inject constructor() : ViewModel() {
+class ReceiveViewModel : ViewModel() {
 
-    @Inject
-    lateinit var synchronizer: Synchronizer
+    private val synchronizer: Synchronizer = DependenciesHolder.synchronizer
 
     suspend fun getAddress(): String = synchronizer.getAddress()
     suspend fun getTranparentAddress(): String = synchronizer.getTransparentAddress()

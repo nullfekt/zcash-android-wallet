@@ -7,29 +7,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.FileProvider.getUriForFile
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.BuildConfig
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.databinding.FragmentProfileBinding
-import cash.z.ecc.android.di.viewmodel.viewModel
-import cash.z.ecc.android.ext.find
-import cash.z.ecc.android.ext.onClick
-import cash.z.ecc.android.ext.onClickNavBack
-import cash.z.ecc.android.ext.onClickNavTo
-import cash.z.ecc.android.ext.showConfirmation
-import cash.z.ecc.android.ext.showCriticalMessage
-import cash.z.ecc.android.ext.showRescanWalletDialog
+import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.feedback.FeedbackFile
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Funnel.UserFeedback
-import cash.z.ecc.android.feedback.Report.Tap.AWESOME_OPEN
-import cash.z.ecc.android.feedback.Report.Tap.PROFILE_BACKUP
-import cash.z.ecc.android.feedback.Report.Tap.PROFILE_CLOSE
-import cash.z.ecc.android.feedback.Report.Tap.PROFILE_RESCAN
-import cash.z.ecc.android.feedback.Report.Tap.PROFILE_SEND_FEEDBACK
-import cash.z.ecc.android.feedback.Report.Tap.PROFILE_VIEW_DEV_LOGS
-import cash.z.ecc.android.feedback.Report.Tap.PROFILE_VIEW_USER_LOGS
+import cash.z.ecc.android.feedback.Report.Tap.*
 import cash.z.ecc.android.sdk.SdkSynchronizer
 import cash.z.ecc.android.sdk.ext.toAbbreviatedAddress
 import cash.z.ecc.android.ui.MainActivity
@@ -43,7 +31,7 @@ import java.io.File
 class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
     override val screen = Report.Screen.PROFILE
 
-    private val viewModel: ProfileViewModel by viewModel()
+    private val viewModel: ProfileViewModel by viewModels()
 
     override fun inflate(inflater: LayoutInflater): FragmentProfileBinding =
         FragmentProfileBinding.inflate(inflater)

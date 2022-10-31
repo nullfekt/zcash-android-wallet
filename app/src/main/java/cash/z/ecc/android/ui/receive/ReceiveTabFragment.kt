@@ -7,10 +7,10 @@ import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import cash.z.android.qrecycler.QRecycler
 import cash.z.ecc.android.BuildConfig
 import cash.z.ecc.android.databinding.FragmentTabReceiveShieldedBinding
-import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.distribute
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.ui.base.BaseFragment
@@ -22,7 +22,7 @@ class ReceiveTabFragment :
     BaseFragment<FragmentTabReceiveShieldedBinding>() {
     override val screen = Report.Screen.RECEIVE
 
-    private val viewModel: ReceiveViewModel by viewModel()
+    private val viewModel: ReceiveViewModel by viewModels()
 
     lateinit var qrecycler: QRecycler
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.ext.WalletZecFormmatter
 import cash.z.ecc.android.feedback.Feedback
@@ -16,20 +17,10 @@ import cash.z.ecc.android.feedback.Report.Funnel.Send.SendSelected
 import cash.z.ecc.android.feedback.Report.Funnel.Send.SpendingKeyFound
 import cash.z.ecc.android.feedback.Report.Issue
 import cash.z.ecc.android.feedback.Report.MetricType
-import cash.z.ecc.android.feedback.Report.MetricType.TRANSACTION_CREATED
-import cash.z.ecc.android.feedback.Report.MetricType.TRANSACTION_INITIALIZED
-import cash.z.ecc.android.feedback.Report.MetricType.TRANSACTION_MINED
-import cash.z.ecc.android.feedback.Report.MetricType.TRANSACTION_SUBMITTED
+import cash.z.ecc.android.feedback.Report.MetricType.*
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
-import cash.z.ecc.android.sdk.db.entity.PendingTransaction
-import cash.z.ecc.android.sdk.db.entity.isCancelled
-import cash.z.ecc.android.sdk.db.entity.isCreated
-import cash.z.ecc.android.sdk.db.entity.isCreating
-import cash.z.ecc.android.sdk.db.entity.isFailedEncoding
-import cash.z.ecc.android.sdk.db.entity.isFailedSubmit
-import cash.z.ecc.android.sdk.db.entity.isMined
-import cash.z.ecc.android.sdk.db.entity.isSubmitSuccess
+import cash.z.ecc.android.sdk.db.entity.*
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.tool.DerivationTool
@@ -43,22 +34,17 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.lang.IllegalArgumentException
-import javax.inject.Inject
 
-class SendViewModel @Inject constructor() : ViewModel() {
+class SendViewModel : ViewModel() {
 
     // note used in testing
     val metrics = mutableMapOf<String, TimeMetric>()
 
-    @Inject
-    lateinit var lockBox: LockBox
+    private val lockBox: LockBox = DependenciesHolder.lockBox
 
-    @Inject
-    lateinit var synchronizer: Synchronizer
+    val synchronizer: Synchronizer = DependenciesHolder.synchronizer
 
-    @Inject
-    lateinit var feedback: Feedback
+    private val feedback: Feedback = DependenciesHolder.feedback
 
     var fromAddress: String = ""
     var toAddress: String = ""
@@ -68,7 +54,7 @@ class SendViewModel @Inject constructor() : ViewModel() {
         set(value) {
             require(!value || (value && !fromAddress.isNullOrEmpty())) {
                 "Error: fromAddress was empty while attempting to include it in the memo. Verify" +
-                    " that initFromAddress() has previously been called on this viewmodel."
+                        " that initFromAddress() has previously been called on this viewmodel."
             }
             field = value
         }
@@ -103,7 +89,8 @@ class SendViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun createMemoToSend() = if (includeFromAddress) "$memo\n$INCLUDE_MEMO_PREFIX_STANDARD\n$fromAddress" else memo
+    fun createMemoToSend() =
+        if (includeFromAddress) "$memo\n$INCLUDE_MEMO_PREFIX_STANDARD\n$fromAddress" else memo
 
     suspend fun validateAddress(address: String): AddressType =
         synchronizer.validateAddress(address)
@@ -132,11 +119,21 @@ class SendViewModel @Inject constructor() : ViewModel() {
                 emit(context.getString(R.string.send_validation_error_dust))
             }
             maxZatoshi != null && zatoshiAmount?.let { it.value > maxZatoshi } ?: false -> {
-                emit(context.getString(R.string.send_validation_error_too_much,
-                    WalletZecFormmatter.toZecStringFull(Zatoshi((maxZatoshi))), ZcashWalletApp.instance.getString(R.string.symbol)))
+                emit(
+                    context.getString(
+                        R.string.send_validation_error_too_much,
+                        WalletZecFormmatter.toZecStringFull(Zatoshi((maxZatoshi))),
+                        ZcashWalletApp.instance.getString(R.string.symbol)
+                    )
+                )
             }
             createMemoToSend().length > ZcashSdk.MAX_MEMO_SIZE -> {
-                emit(context.getString(R.string.send_validation_error_memo_length, ZcashSdk.MAX_MEMO_SIZE))
+                emit(
+                    context.getString(
+                        R.string.send_validation_error_memo_length,
+                        ZcashSdk.MAX_MEMO_SIZE
+                    )
+                )
             }
             else -> emit(null)
         }
@@ -185,7 +182,8 @@ class SendViewModel @Inject constructor() : ViewModel() {
     private fun reportUserInputIssues(memoToSend: String) {
         if (toAddress == fromAddress) feedback.report(Issue.SelfSend)
         when {
-            (zatoshiAmount?.value ?: 0L) < ZcashSdk.MINERS_FEE.value -> feedback.report(Issue.TinyAmount)
+            (zatoshiAmount?.value
+                ?: 0L) < ZcashSdk.MINERS_FEE.value -> feedback.report(Issue.TinyAmount)
             (zatoshiAmount?.value ?: 0L) < 100L -> feedback.report(Issue.MicroAmount)
             (zatoshiAmount ?: 0L) == 1L -> feedback.report(Issue.MinimumAmount)
         }
@@ -235,7 +233,9 @@ class SendViewModel @Inject constructor() : ViewModel() {
                         }
 
                         // remove all top-level metrics
-                        if (metric.key == Report.MetricType.TRANSACTION_MINED.key) metrics.remove(metricId)
+                        if (metric.key == Report.MetricType.TRANSACTION_MINED.key) metrics.remove(
+                            metricId
+                        )
                     }
                 }
             }
@@ -247,8 +247,12 @@ class SendViewModel @Inject constructor() : ViewModel() {
         feedback.report(step)
     }
 
-    private operator fun MetricType.unaryPlus(): TimeMetric = TimeMetric(key, description).markTime()
-    private infix fun TimeMetric.by(txId: Long) = this.toMetricIdFor(txId).also { metrics[it] = this }
+    private operator fun MetricType.unaryPlus(): TimeMetric =
+        TimeMetric(key, description).markTime()
+
+    private infix fun TimeMetric.by(txId: Long) =
+        this.toMetricIdFor(txId).also { metrics[it] = this }
+
     private infix fun Pair<MetricType, MetricType>.by(txId: Long): String? {
         val startMetric = first.toMetricIdFor(txId).let { metricId ->
             metrics[metricId].also { if (it == null) println("Warning no start metric for id: $metricId") }

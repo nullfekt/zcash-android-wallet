@@ -7,10 +7,10 @@ import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentAwesomeBinding
-import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.distribute
 import cash.z.ecc.android.ext.invisibleIf
 import cash.z.ecc.android.ext.onClickNavBack
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 class AwesomeFragment : BaseFragment<FragmentAwesomeBinding>() {
     override val screen = Report.Screen.AWESOME
 
-    private val viewModel: ProfileViewModel by viewModel()
+    private val viewModel: ProfileViewModel by viewModels()
 
     private var lastBalance: WalletBalance? = null
 

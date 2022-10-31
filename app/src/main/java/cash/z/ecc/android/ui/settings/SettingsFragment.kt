@@ -6,17 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.viewModels
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.databinding.FragmentSettingsBinding
-import cash.z.ecc.android.di.viewmodel.viewModel
-import cash.z.ecc.android.ext.gone
-import cash.z.ecc.android.ext.onClickNavBack
-import cash.z.ecc.android.ext.showUpdateServerCriticalError
-import cash.z.ecc.android.ext.showUpdateServerDialog
-import cash.z.ecc.android.ext.toAppColor
-import cash.z.ecc.android.ext.toAppString
-import cash.z.ecc.android.ext.visible
+import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.sdk.exception.LightWalletException
 import cash.z.ecc.android.sdk.ext.collectWith
 import cash.z.ecc.android.ui.base.BaseFragment
@@ -25,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
 
-    private val viewModel: SettingsViewModel by viewModel()
+    private val viewModel: SettingsViewModel by viewModels()
 
     override fun inflate(inflater: LayoutInflater): FragmentSettingsBinding =
         FragmentSettingsBinding.inflate(inflater)

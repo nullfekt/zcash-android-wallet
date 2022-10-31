@@ -6,11 +6,11 @@ import android.view.View
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import cash.z.ecc.android.R
 import cash.z.ecc.android.databinding.FragmentTabLayoutBinding
-import cash.z.ecc.android.di.viewmodel.viewModel
 import cash.z.ecc.android.ext.onClickNavBack
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.ui.base.BaseFragment
@@ -26,7 +26,7 @@ class TabLayoutFragment :
     FragmentCreator,
     TabLayout.OnTabSelectedListener {
 
-    private val viewModel: ReceiveViewModel by viewModel()
+    private val viewModel: ReceiveViewModel by viewModels()
 
     override fun inflate(inflater: LayoutInflater): FragmentTabLayoutBinding =
         FragmentTabLayoutBinding.inflate(inflater)

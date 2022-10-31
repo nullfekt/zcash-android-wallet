@@ -1,15 +1,12 @@
 package cash.z.ecc.android.feedback
 
-import android.util.Log
 import cash.z.ecc.android.feedback.util.CompositeJob
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.lang.IllegalStateException
 import kotlin.coroutines.coroutineContext
-
 
 /**
  * Takes care of the boilerplate involved in processing feedback emissions. Simply provide callbacks
@@ -37,7 +34,6 @@ class FeedbackCoordinator(val feedback: Feedback, defaultObservers: Set<Feedback
     private var contextActions = Dispatchers.IO
     private val jobs = CompositeJob()
     val observers = mutableSetOf<FeedbackObserver>()
-
 
     /**
      * Wait for any in-flight listeners to complete.

@@ -1,6 +1,5 @@
 package cash.z.ecc.android.feedback
 
-//import android.util.Log
 import cash.z.ecc.android.feedback.util.CompositeJob
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel

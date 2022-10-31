@@ -8,45 +8,26 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.databinding.DialogSolicitFeedbackRatingBinding
 import cash.z.ecc.android.databinding.FragmentHomeBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
-import cash.z.ecc.android.di.viewmodel.viewModel
-import cash.z.ecc.android.ext.WalletZecFormmatter
-import cash.z.ecc.android.ext.disabledIf
-import cash.z.ecc.android.ext.goneIf
-import cash.z.ecc.android.ext.invisibleIf
-import cash.z.ecc.android.ext.onClickNavTo
-import cash.z.ecc.android.ext.requireApplicationContext
-import cash.z.ecc.android.ext.showSharedLibraryCriticalError
-import cash.z.ecc.android.ext.toAppColor
-import cash.z.ecc.android.ext.toColoredSpan
-import cash.z.ecc.android.ext.transparentIf
+import cash.z.ecc.android.ext.*
 import cash.z.ecc.android.feedback.Report
-import cash.z.ecc.android.feedback.Report.Tap.HOME_BALANCE_DETAIL
-import cash.z.ecc.android.feedback.Report.Tap.HOME_CLEAR_AMOUNT
-import cash.z.ecc.android.feedback.Report.Tap.HOME_FUND_NOW
-import cash.z.ecc.android.feedback.Report.Tap.HOME_HISTORY
-import cash.z.ecc.android.feedback.Report.Tap.HOME_PROFILE
-import cash.z.ecc.android.feedback.Report.Tap.HOME_RECEIVE
-import cash.z.ecc.android.feedback.Report.Tap.HOME_SEND
+import cash.z.ecc.android.feedback.Report.Tap.*
 import cash.z.ecc.android.preference.Preferences
 import cash.z.ecc.android.preference.model.get
-import cash.z.ecc.android.sdk.Synchronizer.Status.DISCONNECTED
-import cash.z.ecc.android.sdk.Synchronizer.Status.STOPPED
-import cash.z.ecc.android.sdk.Synchronizer.Status.SYNCED
+import cash.z.ecc.android.sdk.Synchronizer.Status.*
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZecString
 import cash.z.ecc.android.sdk.ext.convertZecToZatoshi
 import cash.z.ecc.android.sdk.ext.onFirstWith
 import cash.z.ecc.android.sdk.ext.safelyConvertToBigDecimal
 import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.ui.base.BaseFragment
-import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.CANCEL
-import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.CLEAR
-import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.FUND_NOW
+import cash.z.ecc.android.ui.home.HomeFragment.BannerAction.*
 import cash.z.ecc.android.ui.send.AutoShieldFragment
 import cash.z.ecc.android.ui.send.SendViewModel
 import cash.z.ecc.android.ui.setup.WalletSetupViewModel
@@ -66,12 +47,12 @@ import kotlinx.coroutines.launch
 class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     override val screen = Report.Screen.HOME
 
+    private val walletSetup: WalletSetupViewModel by activityViewModels()
+    private val sendViewModel: SendViewModel by activityViewModels()
+    private val viewModel: HomeViewModel by viewModels()
+
     private lateinit var numberPad: List<TextView>
     private lateinit var uiModel: HomeViewModel.UiModel
-
-    private val walletSetup: WalletSetupViewModel by activityViewModel(false)
-    private val sendViewModel: SendViewModel by activityViewModel()
-    private val viewModel: HomeViewModel by viewModel()
 
     lateinit var snake: MagicSnakeLoader
 
@@ -101,7 +82,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 twig("Previous wallet found. Re-opening it.")
                 mainActivity?.setLoading(true)
                 try {
-                    mainActivity?.startSync(walletSetup.openStoredWallet())
+                    walletSetup.openStoredWallet()
+                    mainActivity?.startSync()
                 } catch (e: UnsatisfiedLinkError) {
                     mainActivity?.showSharedLibraryCriticalError(e)
                 }
@@ -130,8 +112,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             )
             hitAreaProfile.onClickNavTo(R.id.action_nav_home_to_nav_profile) { tapped(HOME_PROFILE) }
             textHistory.onClickNavTo(R.id.action_nav_home_to_nav_history) { tapped(HOME_HISTORY) }
-            textSendAmount.onClickNavTo(R.id.action_nav_home_to_nav_balance_detail) { tapped(HOME_BALANCE_DETAIL) }
-            hitAreaBalance.onClickNavTo(R.id.action_nav_home_to_nav_balance_detail) { tapped(HOME_BALANCE_DETAIL) }
+            textSendAmount.onClickNavTo(R.id.action_nav_home_to_nav_balance_detail) {
+                tapped(
+                    HOME_BALANCE_DETAIL
+                )
+            }
+            hitAreaBalance.onClickNavTo(R.id.action_nav_home_to_nav_balance_detail) {
+                tapped(
+                    HOME_BALANCE_DETAIL
+                )
+            }
             hitAreaReceive.onClickNavTo(R.id.action_nav_home_to_nav_receive) { tapped(HOME_RECEIVE) }
 
             textBannerAction.setOnClickListener {
@@ -157,7 +147,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         if (::uiModel.isInitialized) {
             twig("uiModel exists! it has pendingSend=${uiModel.pendingSend} ZEC while the sendViewModel=${sendViewModel.zatoshiAmount} zats")
             // if the model already existed, cool but let the sendViewModel be the source of truth for the amount
-            onModelUpdated(null, uiModel.copy(pendingSend = WalletZecFormmatter.toZecStringFull(sendViewModel.zatoshiAmount ?: Zatoshi(0L))))
+            onModelUpdated(
+                null,
+                uiModel.copy(
+                    pendingSend = WalletZecFormmatter.toZecStringFull(
+                        sendViewModel.zatoshiAmount ?: Zatoshi(0L)
+                    )
+                )
+            )
         }
     }
 
@@ -241,7 +238,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
         val sendText = when {
             uiModel.status == DISCONNECTED -> getString(R.string.home_button_send_disconnected)
-            uiModel.isSynced -> if (uiModel.hasFunds) getString(R.string.home_button_send_has_funds) else getString(R.string.home_button_send_no_funds)
+            uiModel.isSynced -> if (uiModel.hasFunds) getString(R.string.home_button_send_has_funds) else getString(
+                R.string.home_button_send_no_funds
+            )
             uiModel.status == STOPPED -> getString(R.string.home_button_send_idle)
             uiModel.isDownloading -> {
                 when (snake.downloadProgress) {
@@ -263,8 +262,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         binding.buttonSendAmount.text = sendText
         twig("Send button set to: $sendText")
 
-        val resId = if (uiModel.isSynced) R.color.selector_button_text_dark else R.color.selector_button_text_light
-        context?.let { binding.buttonSendAmount.setTextColor(AppCompatResources.getColorStateList(it, resId)) }
+        val resId =
+            if (uiModel.isSynced) R.color.selector_button_text_dark else R.color.selector_button_text_light
+        context?.let {
+            binding.buttonSendAmount.setTextColor(
+                AppCompatResources.getColorStateList(
+                    it,
+                    resId
+                )
+            )
+        }
         binding.lottieButtonLoading.invisibleIf(uiModel.isDisconnected)
     }
 
@@ -276,14 +283,28 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         binding.textSendAmount.text = "\$$amount".toColoredSpan(R.color.text_light_dimmed, "$")
         if (updateModel) {
             sendViewModel.zatoshiAmount = amount.safelyConvertToBigDecimal().convertZecToZatoshi()
-            twig("dBUG: updating model. converting: $amount\tresult: ${sendViewModel.zatoshiAmount}\tprint: ${WalletZecFormmatter.toZecStringFull(sendViewModel.zatoshiAmount)}")
+            twig(
+                "dBUG: updating model. converting: $amount\tresult: ${sendViewModel.zatoshiAmount}\tprint: ${
+                    WalletZecFormmatter.toZecStringFull(
+                        sendViewModel.zatoshiAmount
+                    )
+                }"
+            )
         }
         binding.buttonSendAmount.disabledIf(amount == "0")
     }
 
-    fun setAvailable(availableBalance: Zatoshi?, totalBalance: Zatoshi?, availableTransparentBalance: Zatoshi?, unminedCount: Int = 0) {
+    fun setAvailable(
+        availableBalance: Zatoshi?,
+        totalBalance: Zatoshi?,
+        availableTransparentBalance: Zatoshi?,
+        unminedCount: Int = 0
+    ) {
         val missingBalance = availableBalance == null
-        val availableString = if (missingBalance) getString(R.string.home_button_send_updating) else WalletZecFormmatter.toZecStringFull(availableBalance)
+        val availableString =
+            if (missingBalance) getString(R.string.home_button_send_updating) else WalletZecFormmatter.toZecStringFull(
+                availableBalance
+            )
         binding.textBalanceAvailable.text = availableString
         binding.textBalanceAvailable.transparentIf(missingBalance)
         binding.labelBalance.transparentIf(missingBalance)
@@ -292,9 +313,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             text = when {
                 unminedCount > 0 -> "(excludes $unminedCount unconfirmed ${if (unminedCount > 1) "transactions" else "transaction"})"
                 availableBalance != null && totalBalance != null && (availableBalance.value < totalBalance.value) -> {
-                    val change = WalletZecFormmatter.toZecStringFull(totalBalance - availableBalance)
+                    val change =
+                        WalletZecFormmatter.toZecStringFull(totalBalance - availableBalance)
                     val symbol = getString(R.string.symbol)
-                    "(${getString(R.string.home_banner_expecting)} +$change $symbol)".toColoredSpan(R.color.text_light, "+$change")
+                    "(${getString(R.string.home_banner_expecting)} +$change $symbol)".toColoredSpan(
+                        R.color.text_light,
+                        "+$change"
+                    )
                 }
                 else -> getString(R.string.home_instruction_enter_amount)
             }
@@ -344,11 +369,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                         append("${maybeComma()}processorInfo=ProcessorInfo(")
                         val startLength = length
                         fun innerComma() = if (length > startLength) ", " else ""
-                        if (old.processorInfo.networkBlockHeight != new.processorInfo.networkBlockHeight) append("networkBlockHeight=${new.processorInfo.networkBlockHeight}")
-                        if (old.processorInfo.lastScannedHeight != new.processorInfo.lastScannedHeight) append("${innerComma()}lastScannedHeight=${new.processorInfo.lastScannedHeight}")
-                        if (old.processorInfo.lastDownloadedHeight != new.processorInfo.lastDownloadedHeight) append("${innerComma()}lastDownloadedHeight=${new.processorInfo.lastDownloadedHeight}")
-                        if (old.processorInfo.lastDownloadRange != new.processorInfo.lastDownloadRange) append("${innerComma()}lastDownloadRange=${new.processorInfo.lastDownloadRange}")
-                        if (old.processorInfo.lastScanRange != new.processorInfo.lastScanRange) append("${innerComma()}lastScanRange=${new.processorInfo.lastScanRange}")
+                        if (old.processorInfo.networkBlockHeight != new.processorInfo.networkBlockHeight) append(
+                            "networkBlockHeight=${new.processorInfo.networkBlockHeight}"
+                        )
+                        if (old.processorInfo.lastScannedHeight != new.processorInfo.lastScannedHeight) append(
+                            "${innerComma()}lastScannedHeight=${new.processorInfo.lastScannedHeight}"
+                        )
+                        if (old.processorInfo.lastDownloadedHeight != new.processorInfo.lastDownloadedHeight) append(
+                            "${innerComma()}lastDownloadedHeight=${new.processorInfo.lastDownloadedHeight}"
+                        )
+                        if (old.processorInfo.lastDownloadRange != new.processorInfo.lastDownloadRange) append(
+                            "${innerComma()}lastDownloadRange=${new.processorInfo.lastDownloadRange}"
+                        )
+                        if (old.processorInfo.lastScanRange != new.processorInfo.lastScanRange) append(
+                            "${innerComma()}lastScanRange=${new.processorInfo.lastScanRange}"
+                        )
                         append(")")
                     }
                     if (old.saplingBalance?.available != new.saplingBalance?.available) append("${maybeComma()}availableBalance=${new.saplingBalance?.available}")
@@ -371,7 +406,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             onNoFunds()
         } else {
             setBanner("")
-            setAvailable(uiModel.saplingBalance?.available, uiModel.saplingBalance?.total, uiModel.transparentBalance?.available, uiModel.unminedCount)
+            setAvailable(
+                uiModel.saplingBalance?.available,
+                uiModel.saplingBalance?.total,
+                uiModel.transparentBalance?.available,
+                uiModel.unminedCount
+            )
         }
         autoShield(uiModel)
     }
@@ -379,24 +419,43 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     private fun autoShield(uiModel: HomeViewModel.UiModel) {
         // TODO: Move the preference read to a suspending function
         // First time SharedPreferences are hit, it'll perform disk IO
-        val isAutoshieldingAcknowledged = Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())
+        val isAutoshieldingAcknowledged =
+            Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())
         val canAutoshield = AutoShieldFragment.canAutoshield(requireApplicationContext())
 
         if (uiModel.hasAutoshieldFunds && canAutoshield) {
             if (!isAutoshieldingAcknowledged) {
-                mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(true))
+                mainActivity?.safeNavigate(
+                    HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(
+                        true
+                    )
+                )
             } else {
                 twig("Autoshielding is available! Let's do this!!!")
                 mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToNavFundsAvailable())
             }
         } else {
             if (!isAutoshieldingAcknowledged) {
-                mainActivity?.safeNavigate(HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(false))
+                mainActivity?.safeNavigate(
+                    HomeFragmentDirections.actionNavHomeToAutoshieldingInfo(
+                        false
+                    )
+                )
             }
 
             // troubleshooting logs
             if ((uiModel.transparentBalance?.available?.value ?: 0) > 0) {
-                twig("Transparent funds are available but not enough to autoshield. Available: ${uiModel.transparentBalance?.available.convertZatoshiToZecString(10)}  Required: ${Zatoshi(ZcashWalletApp.instance.autoshieldThreshold).convertZatoshiToZecString(8)}")
+                twig(
+                    "Transparent funds are available but not enough to autoshield. Available: ${
+                        uiModel.transparentBalance?.available.convertZatoshiToZecString(
+                            10
+                        )
+                    }  Required: ${
+                        Zatoshi(ZcashWalletApp.instance.autoshieldThreshold).convertZatoshiToZecString(
+                            8
+                        )
+                    }"
+                )
             } else if ((uiModel.transparentBalance?.total?.value ?: 0) > 0) {
                 twig("Transparent funds have been received but they require 10 confirmations for autoshielding.")
             } else if (!canAutoshield) {
@@ -506,6 +565,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         //      - we want occasional random feedback that does not occur too often
         return !hasInterrupted && Math.random() < 0.01
     }
+
     /**
      * Interrupt the user with the various things that we want to interrupt them with. These
      * requirements are driven by the product manager and may change over time.
@@ -531,6 +591,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 onFeedbackProvided(ratings.indexOfFirst { it.isActivated })
             }
         }
+
         fun onAskLaterClicked(view: View) {
             dialog.dismiss()
         }
@@ -560,7 +621,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             }
             .setPositiveButton("Nope") { dialog, which ->
                 Toast.makeText(mainActivity, R.string.feedback_thanks, Toast.LENGTH_LONG).show()
-                mainActivity?.reportFunnel(Report.Funnel.UserFeedback.Submitted(rating, "truncated", "truncated", "truncated", true))
+                mainActivity?.reportFunnel(
+                    Report.Funnel.UserFeedback.Submitted(
+                        rating,
+                        "truncated",
+                        "truncated",
+                        "truncated",
+                        true
+                    )
+                )
                 dialog.dismiss()
             }.show()
     }
@@ -568,25 +637,32 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
     }
+
     override fun onStart() {
         super.onStart()
         twig("HomeFragment.onStart")
     }
+
     override fun onPause() {
         super.onPause()
     }
+
     override fun onStop() {
         super.onStop()
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
     }
+
     override fun onDestroy() {
         super.onDestroy()
     }
+
     override fun onDetach() {
         super.onDetach()
     }

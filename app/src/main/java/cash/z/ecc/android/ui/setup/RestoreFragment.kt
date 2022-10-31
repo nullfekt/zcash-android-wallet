@@ -11,22 +11,19 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.databinding.FragmentRestoreBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
 import cash.z.ecc.android.ext.goneIf
 import cash.z.ecc.android.ext.showConfirmation
 import cash.z.ecc.android.ext.showInvalidSeedPhraseError
 import cash.z.ecc.android.ext.showSharedLibraryCriticalError
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.Funnel.Restore
-import cash.z.ecc.android.feedback.Report.Tap.RESTORE_BACK
-import cash.z.ecc.android.feedback.Report.Tap.RESTORE_CLEAR
-import cash.z.ecc.android.feedback.Report.Tap.RESTORE_DONE
-import cash.z.ecc.android.feedback.Report.Tap.RESTORE_SUCCESS
+import cash.z.ecc.android.feedback.Report.Tap.*
 import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.ui.base.BaseFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -38,7 +35,7 @@ import kotlinx.coroutines.launch
 class RestoreFragment : BaseFragment<FragmentRestoreBinding>(), View.OnKeyListener {
     override val screen = Report.Screen.RESTORE
 
-    private val walletSetup: WalletSetupViewModel by activityViewModel(false)
+    private val walletSetup: WalletSetupViewModel by activityViewModels()
 
     private lateinit var seedWordRecycler: RecyclerView
     private var seedWordAdapter: SeedWordAdapter? = null
@@ -151,7 +148,8 @@ class RestoreFragment : BaseFragment<FragmentRestoreBinding>(), View.OnKeyListen
         mainActivity?.apply {
             lifecycleScope.launch {
                 try {
-                    mainActivity?.startSync(walletSetup.importWallet(seedPhrase, birthday))
+                    walletSetup.importWallet(seedPhrase, birthday)
+                    mainActivity?.startSync()
                     // bugfix: if the user proceeds before the synchronizer is created the app will crash!
                     binding.buttonSuccess.isEnabled = true
                     mainActivity?.reportFunnel(Restore.ImportCompleted)

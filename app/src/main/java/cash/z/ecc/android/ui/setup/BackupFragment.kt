@@ -9,11 +9,12 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import cash.z.ecc.android.R
 import cash.z.ecc.android.ZcashWalletApp
 import cash.z.ecc.android.databinding.FragmentBackupBinding
-import cash.z.ecc.android.di.viewmodel.activityViewModel
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.feedback.Report.MetricType.SEED_PHRASE_LOADED
@@ -21,7 +22,6 @@ import cash.z.ecc.android.feedback.Report.Tap.BACKUP_DONE
 import cash.z.ecc.android.feedback.Report.Tap.BACKUP_VERIFY
 import cash.z.ecc.android.feedback.measure
 import cash.z.ecc.android.lockbox.LockBox
-import cash.z.ecc.android.sdk.db.entity.Block
 import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.model.BlockHeight
 import cash.z.ecc.android.ui.base.BaseFragment
@@ -35,12 +35,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.RuntimeException
 
 class BackupFragment : BaseFragment<FragmentBackupBinding>() {
     override val screen = Report.Screen.BACKUP
 
-    private val walletSetup: WalletSetupViewModel by activityViewModel(false)
+    private val walletSetup: WalletSetupViewModel by activityViewModels()
 
     private var hasBackUp: Boolean = true // TODO: implement backup and then check for it here-ish
 
@@ -75,6 +74,7 @@ class BackupFragment : BaseFragment<FragmentBackupBinding>() {
             onEnterWallet(false)
         }
     }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         walletSetup.checkSeed().onEach {
@@ -88,7 +88,8 @@ class BackupFragment : BaseFragment<FragmentBackupBinding>() {
     override fun onResume() {
         super.onResume()
         resumedScope.launch {
-            binding.textBirtdate.text = getString(R.string.backup_format_birthday_height, calculateBirthday().value)
+            binding.textBirtdate.text =
+                getString(R.string.backup_format_birthday_height, calculateBirthday().value)
         }
     }
 
@@ -98,25 +99,35 @@ class BackupFragment : BaseFragment<FragmentBackupBinding>() {
         var oldestTransactionHeight: BlockHeight? = null
         var activationHeight: BlockHeight? = null
         try {
-            activationHeight = mainActivity?.synchronizerComponent?.synchronizer()?.network?.saplingActivationHeight
+            activationHeight = DependenciesHolder.synchronizer.network.saplingActivationHeight
             storedBirthday = walletSetup.loadBirthdayHeight()
-            oldestTransactionHeight = mainActivity?.synchronizerComponent?.synchronizer()?.receivedTransactions?.first()?.last()?.minedHeight?.let {
-                BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it)
-            }
+            oldestTransactionHeight = DependenciesHolder.synchronizer.receivedTransactions.first()
+                ?.last()?.minedHeight?.let {
+                    BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it)
+                }
             // to be safe adjust for reorgs (and generally a little cushion is good for privacy)
             // so we round down to the nearest 100 and then subtract 100 to ensure that the result is always at least 100 blocks away
             oldestTransactionHeight = ZcashSdk.MAX_REORG_SIZE.let { boundary ->
-                oldestTransactionHeight?.let { it.value - it.value.rem(boundary) - boundary }?.let { BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it) }
+                oldestTransactionHeight?.let { it.value - it.value.rem(boundary) - boundary }
+                    ?.let { BlockHeight.new(ZcashWalletApp.instance.defaultNetwork, it) }
             }
         } catch (t: Throwable) {
             twig("failed to calculate birthday due to: $t")
         }
-        return listOfNotNull(storedBirthday, oldestTransactionHeight, activationHeight).maxBy { it.value }
+        return listOfNotNull(
+            storedBirthday,
+            oldestTransactionHeight,
+            activationHeight
+        ).maxBy { it.value }
     }
 
     private fun onEnterWallet(showMessage: Boolean = !this.hasBackUp) {
         if (showMessage) {
-            Toast.makeText(activity, R.string.backup_verification_not_implemented, Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                activity,
+                R.string.backup_verification_not_implemented,
+                Toast.LENGTH_LONG
+            ).show()
         }
         mainActivity?.navController?.popBackStack()
     }
@@ -138,7 +149,8 @@ class BackupFragment : BaseFragment<FragmentBackupBinding>() {
         mainActivity!!.feedback.measure(SEED_PHRASE_LOADED) {
             val lockBox = LockBox(ZcashWalletApp.instance)
             val mnemonics = Mnemonics()
-            val seedPhrase = lockBox.getCharsUtf8(Const.Backup.SEED_PHRASE) ?: throw RuntimeException("Seed Phrase expected but not found in storage!!")
+            val seedPhrase = lockBox.getCharsUtf8(Const.Backup.SEED_PHRASE)
+                ?: throw RuntimeException("Seed Phrase expected but not found in storage!!")
             val result = mnemonics.toWordList(seedPhrase)
             result
         }

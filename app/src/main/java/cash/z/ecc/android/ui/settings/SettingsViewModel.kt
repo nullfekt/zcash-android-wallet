@@ -1,24 +1,20 @@
 package cash.z.ecc.android.ui.settings
 
 import androidx.lifecycle.ViewModel
+import cash.z.ecc.android.di.DependenciesHolder
 import cash.z.ecc.android.ext.Const
 import cash.z.ecc.android.lockbox.LockBox
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.util.twig
 import kotlinx.coroutines.flow.MutableStateFlow
-import javax.inject.Inject
-import javax.inject.Named
 import kotlin.properties.Delegates.observable
 import kotlin.reflect.KProperty
 
-class SettingsViewModel @Inject constructor() : ViewModel() {
+class SettingsViewModel : ViewModel() {
 
-    @Inject
-    lateinit var synchronizer: Synchronizer
+    private val synchronizer: Synchronizer = DependenciesHolder.synchronizer
 
-    @Inject
-    @Named(Const.Name.APP_PREFS)
-    lateinit var prefs: LockBox
+    private val prefs: LockBox = DependenciesHolder.prefs
 
     lateinit var uiModels: MutableStateFlow<UiModel>
 

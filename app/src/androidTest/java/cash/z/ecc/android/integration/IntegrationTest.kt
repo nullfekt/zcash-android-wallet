@@ -10,7 +10,7 @@ import cash.z.ecc.kotlin.mnemonic.Mnemonics
 import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.GzipSink
-import okio.Okio
+import okio.buffer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -106,7 +106,7 @@ class IntegrationTest {
 
     fun String.gzip(): ByteArray {
         val result = Buffer()
-        val sink = Okio.buffer(GzipSink(result))
+        val sink = GzipSink(result).buffer()
         sink.use {
             sink.write(toByteArray())
         }
