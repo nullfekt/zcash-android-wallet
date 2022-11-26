@@ -1,5 +1,5 @@
 <resources>
-    <string name="translated_app_name">ECC Wallet</string>
+    <string name="translated_app_name">SilentDragon</string>
     <string name="translated_loadingtext">Loading</string>
     <string name="translated_welcometext">Welcome</string>
     <string name="translated_fiattext">Fiat</string>
@@ -34,7 +34,7 @@
     <string name="translated_address_transparent">Your Transparent Address</string>
     <string name="translated_feedback_addresscopied">Address Copied!</string>
     <string name="translated_button_copytoclipboard">Copy to clipboard</string>
-    <string name="translated_profile_screen">Shielded User</string>
+    <string name="translated_profile_screen">Shielded Address</string>
     <string name="translated_button_feedback">Send Feedback</string>
     <string name="translated_button_backup_wallet">Backup Wallet</string>
     <string name="translated_button_applicationlogs">See Application Logs</string>

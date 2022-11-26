@@ -16,7 +16,6 @@ import cash.z.ecc.android.feedback.Report
 import cash.z.ecc.android.ui.base.BaseFragment
 import cash.z.ecc.android.ui.receive.ReceiveTabFragment
 import cash.z.ecc.android.ui.receive.ReceiveViewModel
-import cash.z.ecc.android.ui.receive.TransparentTabFragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
@@ -38,9 +37,11 @@ class TabLayoutFragment :
         binding.viewPager.adapter = ViewPagerAdapter(this, this)
         binding.viewPager.setPageTransformer(ZoomOutPageTransformer())
         binding.tabLayout.addOnTabSelectedListener(this)
+        /*
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = if (position == 0) "Shielded" else "Transparent"
         }.attach()
+         */
         binding.buttonShareAddress.setOnClickListener {
             shareActiveAddress()
         }
@@ -50,7 +51,7 @@ class TabLayoutFragment :
         mainActivity?.apply {
             lifecycleScope.launch {
                 val address =
-                    if (binding.viewPager.currentItem == 1) viewModel.getTranparentAddress() else viewModel.getAddress()
+                    viewModel.getAddress()
                 shareText(address)
             }
         }
@@ -63,7 +64,6 @@ class TabLayoutFragment :
     override fun onTabSelected(tab: TabLayout.Tab) {
         when (tab.position) {
             0 -> setSelectedTab(R.color.zcashYellow)
-            1 -> setSelectedTab(R.color.zcashBlueDark)
         }
     }
 
@@ -88,7 +88,6 @@ class TabLayoutFragment :
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> ReceiveTabFragment()
-            1 -> TransparentTabFragment()
             else -> throw IndexOutOfBoundsException("Cannot create a fragment for index $position")
         }
     }

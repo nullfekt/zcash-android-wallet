@@ -55,7 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        tools:text="Receive ZEC"
+        tools:text="Receive HUSH"
         app:layout_constraintBottom_toTopOf="@+id/guideline_hit_area_top"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

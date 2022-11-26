@@ -11,12 +11,15 @@ pluginManagement {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
-        val isRepoRestrictionEnabled = true
+        val isRepoRestrictionEnabled = false
 
+        mavenLocal()
         google()
         mavenCentral()
         maven("https://jitpack.io")
         jcenter()
+
+        /*
         // Uncomment to use a snapshot version of the SDK, e.g. when the SDK version ends in -SNAPSHOT
         maven("https://oss.sonatype.org/content/repositories/snapshots") {
             if (isRepoRestrictionEnabled) {
@@ -24,7 +27,7 @@ dependencyResolutionManagement {
                     includeGroup("cash.z.ecc.android")
                 }
             }
-        }
+        }*/
     }
 }
 

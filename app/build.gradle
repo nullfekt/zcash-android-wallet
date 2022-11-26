@@ -39,13 +39,13 @@ android {
         zcashtestnet {
             dimension 'network'
             applicationId 'cash.z.ecc.android.testnet'
-            buildConfigField "String", "DEFAULT_SERVER_URL", '"lightwalletd.testnet.electriccoin.co"'
+            buildConfigField "String", "DEFAULT_SERVER_URL", '"lite2.hushpool.is"'
             matchingFallbacks = ['zcashtestnet', 'debug']
         }
 
         zcashmainnet {
             dimension 'network'
-            buildConfigField "String", "DEFAULT_SERVER_URL", '"lightwalletd.electriccoin.co"'
+            buildConfigField "String", "DEFAULT_SERVER_URL", '"lite2.hushpool.is"'
             matchingFallbacks = ['zcashmainnet', 'release']
         }
     }

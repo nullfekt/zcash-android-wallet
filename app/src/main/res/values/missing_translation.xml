@@ -53,7 +53,7 @@
     <string name="missing_landing_button_secondary">Restore</string>
     <string name="missing_landing_create_success_message">Wallet created! Congratulations!</string>
     <string name="missing_landing_import_success_message">Wallet imported! Congratulations!</string>
-    <string name="missing_landing_title">Welcome to the ECC Wallet!</string>
+    <string name="missing_landing_title">Welcome to SilentDragon!</string>
 
     <!-- Screen: Profile -->
     <string name="missing_profile_rescan_wallet">Rescan Wallet</string>
@@ -63,7 +63,7 @@
     <string name="missing_receive_address_title">Receive Funds</string>
 
     <!-- Screen: Scan -->
-    <string name="missing_scan_invalid_address">"Invalid Zcash %1$s address:\n\n%2$s"</string>
+    <string name="missing_scan_invalid_address">"Invalid Hush %1$s address:\n\n%2$s"</string>
 
     <!-- Screen: Send Flow -->
     <string name="missing_send_failed_button_text">Retry</string>

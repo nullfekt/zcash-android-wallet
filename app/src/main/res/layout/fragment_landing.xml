@@ -14,14 +14,13 @@
         app:layout_constraintGuide_percent="0.667" />
 
     <TextView
+        style="@style/TextAppearance.MaterialComponents.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/TextAppearance.MaterialComponents.Body1"
+        android:alpha="0.05"
         android:gravity="center"
-        android:text="empowering\neveryone\nwith\neconomic\nfreedom"
         android:textColor="@color/zcashWhite_50"
         android:textSize="56dp"
-        android:alpha="0.05"
         app:layout_constraintBottom_toBottomOf="@id/icon_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

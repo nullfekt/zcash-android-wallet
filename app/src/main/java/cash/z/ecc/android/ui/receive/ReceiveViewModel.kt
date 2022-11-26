@@ -10,7 +10,7 @@ class ReceiveViewModel : ViewModel() {
     private val synchronizer: Synchronizer = DependenciesHolder.synchronizer
 
     suspend fun getAddress(): String = synchronizer.getAddress()
-    suspend fun getTranparentAddress(): String = synchronizer.getTransparentAddress()
+    //suspend fun getTranparentAddress(): String = synchronizer.getTransparentAddress()
 
     override fun onCleared() {
         super.onCleared()

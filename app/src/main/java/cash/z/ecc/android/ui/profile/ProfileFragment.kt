@@ -55,11 +55,6 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
             tapped(PROFILE_RESCAN)
             onRescanWallet()
         }
-        binding.buttonFeedback.onClickNavTo(R.id.action_nav_profile_to_nav_feedback) {
-            tapped(PROFILE_SEND_FEEDBACK)
-            mainActivity?.reportFunnel(UserFeedback.Started)
-            Unit
-        }
         binding.textVersion.text = BuildConfig.VERSION_NAME
         onClick(binding.buttonLogs) {
             tapped(PROFILE_VIEW_USER_LOGS)
