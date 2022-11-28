@@ -183,10 +183,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         twig("Sync ready! Monitoring synchronizer state...")
         monitorUiModelChanges()
 
-        if (Preferences.isAcknowledgedAutoshieldingInformationPrompt.get(requireApplicationContext())) {
-            maybeInterruptUser()
-        }
-
         twig("HomeFragment.onSyncReady COMPLETE")
     }
 
@@ -564,74 +560,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         // requirements:
         //      - we want occasional random feedback that does not occur too often
         return !hasInterrupted && Math.random() < 0.01
-    }
-
-    /**
-     * Interrupt the user with the various things that we want to interrupt them with. These
-     * requirements are driven by the product manager and may change over time.
-     */
-    private fun maybeInterruptUser() {
-        if (canInterruptUser()) {
-            feedbackPrompt()?.let {
-                it.show()
-            }
-        }
-    }
-
-    private fun feedbackPrompt(): Dialog {
-        lateinit var ratings: Array<View>
-        lateinit var dialog: Dialog
-        fun onRatingClicked(view: View) {
-            ratings.forEach { it.isActivated = false }
-            view.isActivated = !view.isActivated
-            lifecycleScope.launch {
-                // let the color change show
-                delay(150)
-                dialog.dismiss()
-                onFeedbackProvided(ratings.indexOfFirst { it.isActivated })
-            }
-        }
-
-        fun onAskLaterClicked(view: View) {
-            dialog.dismiss()
-        }
-
-        val promptViewBinding = DialogSolicitFeedbackRatingBinding.inflate(layoutInflater)
-        with(promptViewBinding) {
-            ratings = arrayOf(feedbackExp1, feedbackExp2, feedbackExp3, feedbackExp4, feedbackExp5)
-            ratings.forEach {
-                it.setOnClickListener(::onRatingClicked)
-            }
-            buttonAskLater.setOnClickListener(::onAskLaterClicked)
-        }
-        dialog = MaterialAlertDialogBuilder(requireContext())
-            .setView(promptViewBinding.root)
-            .setCancelable(true)
-            .create()
-        return dialog
-    }
-
-    private fun onFeedbackProvided(rating: Int) {
-        hasInterrupted = true
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Want to share details?")
-            .setNegativeButton("Yes!") { dialog, which ->
-                val action = HomeFragmentDirections.actionNavHomeToNavFeedback(rating, true)
-                mainActivity?.navController?.navigate(action)
-            }
-            .setPositiveButton("Nope") { dialog, which ->
-                Toast.makeText(mainActivity, R.string.feedback_thanks, Toast.LENGTH_LONG).show()
-                mainActivity?.reportFunnel(
-                    Report.Funnel.UserFeedback.Submitted(
-                        rating,
-                        "truncated",
-                        "truncated",
-                        "truncated",
-                        true
-                    )
-                )
-                dialog.dismiss()
-            }.show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
