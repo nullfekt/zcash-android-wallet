@@ -8,8 +8,8 @@
     <!-- colors here should map to a material design value -->
 
     <color name="colorPrimary">@color/zcashYellow</color>
-    <color name="colorPrimaryMedium">#805E08</color>
-    <color name="colorPrimaryDark">#4D3805</color>
+    <color name="colorPrimaryMedium">#7C7C7C</color>
+    <color name="colorPrimaryDark">#454545</color>
     <color name="colorAccent">#A1A1A1</color>
     <color name="colorSurface">@color/text_light</color>
     <color name="colorOnSurface">@color/background_banner</color>
@@ -45,10 +45,10 @@
     <color name="zcashBlue">#26DAB6</color>
     <color name="zcashBlueDark">#4A90E2</color>
 
-    <!-- yellows -->
+    <!-- yellows (greys) -->
     <color name="zcashYellow_light">#B3B3B3</color>
-    <color name="zcashYellow">#333333</color>
-    <color name="zcashYellow_dark">#666666</color>
+    <color name="zcashYellow">#666666</color>
+    <color name="zcashYellow_dark">#333333</color>
 
     <!-- tab layout grey -->
     <color name="unselected_tab_grey">#727272</color>
@@ -63,7 +63,7 @@
 
     <color name="app_icon_background_0">#FF3F3F4F</color>
     <color name="app_icon_background_1">#FF000000</color>
-    <color name="app_icon_foreground">#FFB900</color>
+    <color name="app_icon_foreground">#FFFFFF</color>
     <color name="background_banner">@color/zcashBlack_dark</color>
     <color name="background_banner_stroke">#282828</color>
     <color name="scan_overlay_background">@color/zcashBlack_87</color>
@@ -83,7 +83,7 @@
     <color name="tx_text_light_dimmed">#9B9B9B</color>
     <color name="tx_text_light_dimmed_less">#D3D3D3</color>
     <color name="tx_circle_icon_bg">#494A4C</color>
-    <color name="tx_primary">#F5A623</color>
+    <color name="tx_primary">#FFFFFF</color>
 
     <!--transaction colors-->
     <color name="transaction_sent">#B8B8B8</color>
