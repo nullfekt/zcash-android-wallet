@@ -320,7 +320,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 else -> getString(R.string.home_instruction_enter_amount)
             }
         }
-        binding.imageTransparentAvailable.goneIf(availableTransparentBalance == null)
     }
 
     fun setBanner(message: String = "", action: BannerAction = CLEAR) {
@@ -328,7 +327,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             val hasMessage = !message.isEmpty() || action != CLEAR
             groupBalance.goneIf(hasMessage)
             groupBanner.goneIf(!hasMessage)
-            layerLock.goneIf(!hasMessage)
+            //layerLock.goneIf(!hasMessage)
 
             textBannerMessage.text = message
             textBannerAction.text = action.action
