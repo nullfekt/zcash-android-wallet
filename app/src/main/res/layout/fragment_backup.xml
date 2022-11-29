@@ -335,7 +335,7 @@ text_address_part_3, text_address_part_6, text_address_part_9, text_address_part
         android:layout_height="wrap_content"
         style="@style/TextAppearance.MaterialComponents.Body1"
         android:gravity="center"
-        android:text="@string/backup_slogan"
+        android:text=" "
         android:textColor="@color/zcashWhite_50"
         android:textSize="56dp"
         android:alpha="0.03"

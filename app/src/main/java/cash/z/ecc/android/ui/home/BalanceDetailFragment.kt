@@ -45,79 +45,16 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.hitAreaExit.onClickNavBack() { tapped(RECEIVE_BACK) }
-        binding.textShieldedZecTitle.text = "SHIELDED ${getString(R.string.symbol)}"
-        binding.buttonShieldTransaparentFunds.setOnClickListener {
-            onAutoShield()
-        }
-
-        binding.switchFunds.isChecked = viewModel.showAvailable
-        setFundSource(viewModel.showAvailable)
-        binding.switchFunds.setOnCheckedChangeListener { buttonView, isChecked ->
-            viewModel.showAvailable = isChecked
-            setFundSource(isChecked)
-        }
-        binding.textSwitchAvailable.setOnClickListener {
-            binding.switchFunds.isChecked = true
-        }
-        binding.textSwitchTotal.setOnClickListener {
-            binding.switchFunds.isChecked = false
-        }
-    }
-
-    private fun setFundSource(isAvailable: Boolean) {
-        val selected = R.color.colorPrimary.toAppColor()
-        val unselected = R.color.text_light_dimmed.toAppColor()
-        binding.textSwitchTotal.setTextColor(if (!isAvailable) selected else unselected)
-        binding.textSwitchAvailable.setTextColor(if (isAvailable) selected else unselected)
-
-        viewModel.latestBalance?.let { balance ->
-            onBalanceUpdated(balance)
-        }
-    }
-
-    private fun onAutoShield() {
-        if (binding.buttonShieldTransaparentFunds.isActivated) {
-            mainActivity?.let { main ->
-                main.authenticate(
-                    "Shield transparent funds",
-                    getString(R.string.biometric_backup_phrase_title)
-                ) {
-                    main.safeNavigate(R.id.action_nav_balance_detail_to_shield_final)
-                }
-            }
-        } else {
-            val toast = when {
-                // if funds exist but they're all unconfirmed
-                (viewModel.latestBalance?.transparentBalance?.total?.value ?: 0) > 0 -> {
-                    "Please wait for more confirmations"
-                }
-                viewModel.latestBalance?.hasData() == true -> {
-                    "No transparent funds"
-                }
-                else -> {
-                    "Please wait until fully synced"
-                }
-            }
-            Toast.makeText(mainActivity, toast, Toast.LENGTH_SHORT).show()
-        }
+        binding.textShieldedHushTitle.text = "SHIELDED ${getString(R.string.symbol)}"
     }
 
     private fun onBalanceUpdated(balanceModel: BalanceDetailViewModel.BalanceModel) {
         balanceModel.apply {
             if (balanceModel.hasData()) {
                 setBalances(paddedShielded, paddedTransparent, paddedTotal)
-                updateButton(canAutoShield)
             } else {
                 setBalances(" --", " --", " --")
-                updateButton(false)
             }
-        }
-    }
-
-    private fun updateButton(canAutoshield: Boolean) {
-        binding.buttonShieldTransaparentFunds.apply {
-            isActivated = canAutoshield
-            refreshDrawableState()
         }
     }
 
@@ -142,12 +79,6 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
                 }
             }
         }
-
-        status.balances.hasPending.let { hasPending ->
-            binding.switchFunds.goneIf(!hasPending)
-            binding.textSwitchTotal.goneIf(!hasPending)
-            binding.textSwitchAvailable.goneIf(!hasPending)
-        }
     }
 
     private fun sendNewBlockSignal(currentHeight: BlockHeight?) {
@@ -161,8 +92,6 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
 
     fun setBalances(shielded: String, transparent: String, total: String) {
         binding.textShieldAmount.text = shielded.colorize()
-        binding.textTransparentAmount.text = transparent.colorize()
-        binding.textTotalAmount.text = total.colorize()
     }
 
     private fun String.colorize(): CharSequence {
@@ -193,7 +122,7 @@ class BalanceDetailFragment : BaseFragment<FragmentBalanceDetailBinding>() {
                     ZcashWalletApp.instance.getString(
                         R.string.symbol
                     )
-                } in shielded funds and ${pendingTransparentBalance.convertZatoshiToZecString(8)} ${
+                } in shielded funds and {pendingTransparentBalance.convertZatoshiToZecString(8)} ${
                     ZcashWalletApp.instance.getString(
                         R.string.symbol
                     )

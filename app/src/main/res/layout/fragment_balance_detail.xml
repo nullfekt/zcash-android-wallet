@@ -88,52 +88,10 @@
         android:alpha="0.5"
         android:background="@drawable/background_gradient_balance_details"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.3516"
+        app:layout_constraintHeight_percent="0.20"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline_content_top"
         app:layout_constraintWidth_percent="0.9" />
-
-    <Switch
-        android:id="@+id/switch_funds"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingBottom="16dp"
-        android:paddingTop="12dp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/background_group_outter" />
-
-    <TextView
-        android:id="@+id/text_switch_total"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:fontFamily="@font/inconsolata"
-        android:paddingBottom="16dp"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:text="Total"
-        android:textSize="14dp"
-        android:visibility="invisible"
-        app:layout_constraintBaseline_toBaselineOf="@id/text_switch_available"
-        app:layout_constraintEnd_toStartOf="@id/switch_funds" />
-
-    <TextView
-        android:id="@+id/text_switch_available"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:fontFamily="@font/inconsolata"
-        android:paddingBottom="16dp"
-        android:paddingEnd="16dp"
-        android:paddingStart="4dp"
-        android:paddingTop="8dp"
-        android:text="Available"
-        android:textSize="14dp"
-        android:visibility="invisible"
-        app:layout_constraintBaseline_toBaselineOf="@id/switch_funds"
-        app:layout_constraintStart_toEndOf="@id/switch_funds" />
 
     <View
         android:id="@+id/background_group_inner"
@@ -142,7 +100,7 @@
         android:alpha="0.5"
         app:layout_constraintBottom_toBottomOf="@id/background_group_outter"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.318"
+        app:layout_constraintHeight_percent="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/background_group_outter"
         app:layout_constraintWidth_percent="0.8382" />
@@ -152,38 +110,25 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#25242B"
-        app:layout_constraintBottom_toTopOf="@id/background_middle"
+        app:layout_constraintBottom_toTopOf="@id/background_bottom"
         app:layout_constraintEnd_toEndOf="@id/background_group_inner"
         app:layout_constraintHeight_percent="0.1"
         app:layout_constraintStart_toStartOf="@id/background_group_inner"
         app:layout_constraintTop_toTopOf="@id/background_group_inner"
         app:layout_constraintVertical_chainStyle="spread_inside" />
 
-    <View
-        android:id="@+id/background_middle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:alpha="0.1"
-        android:background="@drawable/background_balance_details_transparent"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@id/background_bottom"
-        app:layout_constraintEnd_toEndOf="@id/background_top"
-        app:layout_constraintHeight_percent="0.1"
-        app:layout_constraintStart_toStartOf="@id/background_top"
-        app:layout_constraintTop_toBottomOf="@id/background_top" />
 
     <View
         android:id="@+id/background_bottom"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:alpha="0.1"
-        android:background="@drawable/background_balance_details_total"
-        android:visibility="invisible"
+        android:background="@drawable/background_balance_detail_amounts_container"
         app:layout_constraintBottom_toBottomOf="@id/background_group_inner"
         app:layout_constraintEnd_toEndOf="@id/background_top"
-        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintHeight_percent="0"
         app:layout_constraintStart_toStartOf="@id/background_top"
-        app:layout_constraintTop_toBottomOf="@id/background_middle" />
+        app:layout_constraintTop_toBottomOf="@id/background_top" />
 
     <ImageView
         android:id="@+id/icon_exit"
@@ -202,21 +147,8 @@
         app:tint="@color/text_light_dimmed" />
 
 
-    <ImageView
-        android:id="@+id/icon_receive_funds"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintDimensionRatio="H,1:1"
-        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-        app:layout_constraintTop_toTopOf="@id/background_top"
-        app:layout_constraintWidth_percent="0.042"
-        app:srcCompat="@drawable/ic_receive_funds"
-        tools:visibility="invisible" />
-
     <TextView
-        android:id="@+id/text_shielded_zec_title"
+        android:id="@+id/text_shielded_hush_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -225,10 +157,8 @@
         android:textAllCaps="true"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
         android:textColor="@color/zcashYellow"
-        app:layout_constraintBottom_toBottomOf="@+id/icon_receive_funds"
+        app:layout_constraintTop_toTopOf="@id/background_top"
         app:layout_constraintEnd_toStartOf="@+id/guideline_content_end"
-        app:layout_constraintStart_toEndOf="@+id/icon_receive_funds"
-        app:layout_constraintTop_toTopOf="@+id/icon_receive_funds"
         tools:text="Shielded HUSH" />
 
     <TextView
@@ -242,77 +172,10 @@
         android:textSize="32sp"
         app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="@id/background_top"
-        app:layout_constraintEnd_toEndOf="@+id/text_shielded_zec_title"
+        app:layout_constraintEnd_toEndOf="@+id/text_shielded_hush_title"
         app:layout_constraintStart_toEndOf="@id/zec_sign_total"
-        app:layout_constraintTop_toBottomOf="@+id/text_shielded_zec_title"
-        tools:text="   1.11111111" />
-
-    <TextView
-        android:id="@+id/text_transparent_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/inconsolata"
-        android:paddingStart="4dp"
-        android:text="+ transparent"
-        android:textAllCaps="true"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        app:layout_constraintEnd_toEndOf="@+id/text_shield_amount"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-        app:layout_constraintTop_toTopOf="@id/background_middle"
-        tools:visibility="invisible" />
-
-
-    <TextView
-        android:id="@+id/text_transparent_amount"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fontFamily="@font/inconsolata"
-        android:includeFontPadding="false"
-        android:maxLines="1"
-        android:textAppearance="@style/Zcash.TextAppearance.Zec"
-        android:textSize="32sp"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@id/background_middle"
-        app:layout_constraintEnd_toEndOf="@+id/text_shielded_zec_title"
-        app:layout_constraintStart_toEndOf="@id/zec_sign_shielded"
-        app:layout_constraintTop_toBottomOf="@+id/text_transparent_title"
-        tools:text="9999.99999999"
-        tools:visibility="invisible" />
-
-    <TextView
-        android:id="@+id/text_total_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/inconsolata"
-        android:paddingStart="4dp"
-        android:text="= total"
-        android:textAllCaps="true"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@+id/text_transparent_amount"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-        app:layout_constraintTop_toTopOf="@id/background_bottom" />
-
-    <TextView
-        android:id="@+id/text_total_amount"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fontFamily="@font/inconsolata"
-        android:includeFontPadding="false"
-        android:maxLines="1"
-        android:textAppearance="@style/Zcash.TextAppearance.Zec"
-        android:textSize="32sp"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@id/background_bottom"
-        app:layout_constraintEnd_toEndOf="@+id/text_shielded_zec_title"
-        app:layout_constraintStart_toEndOf="@id/zec_sign_total"
-        app:layout_constraintTop_toBottomOf="@+id/text_total_title"
-        tools:text="44.11223344"
-        tools:visibility="invisible" />
+        app:layout_constraintTop_toBottomOf="@+id/text_shielded_hush_title"
+        tools:text="1.11111111" />
 
     <!-- Z signs (possibly temporary) -->
 
@@ -329,19 +192,6 @@
         app:srcCompat="@drawable/ic_zec_symbol_right" />
 
     <ImageView
-        android:id="@+id/zec_sign_transparent"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginTop="8dp"
-        android:visibility="invisible"
-        app:layout_constraintDimensionRatio="H,1:1"
-        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-        app:layout_constraintTop_toTopOf="@id/text_transparent_amount"
-        app:layout_constraintWidth_percent="0.042"
-        app:srcCompat="@drawable/ic_zec_symbol_right" />
-
-    <ImageView
         android:id="@+id/zec_sign_total"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -350,7 +200,7 @@
         android:visibility="invisible"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-        app:layout_constraintTop_toTopOf="@id/text_total_amount"
+        app:layout_constraintTop_toTopOf="@id/text_shield_amount"
         app:layout_constraintWidth_percent="0.042"
         app:srcCompat="@drawable/ic_zec_symbol_right" />
 
@@ -363,31 +213,14 @@
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textColor="@color/text_light_dimmed"
-        app:layout_constraintBottom_toTopOf="@+id/button_shield_transaparent_funds"
-        app:layout_constraintEnd_toEndOf="@id/background_group_inner"
-        app:layout_constraintStart_toStartOf="@id/background_group_inner"
-        app:layout_constraintTop_toBottomOf="@+id/background_group_outter"
-        tools:text="(2.427893 HUSH pending)\nadsf\nasdfasf\nasdfasdf\nadsfas\nasdf\nasdfas\nasdfas \nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_shield_transaparent_funds"
-        style="@style/Zcash.Button"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:gravity="center"
-        android:text="@string/balance_detail_button_send_transparent_funds"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        android:textColor="@color/selector_button_text_dark"
-        android:textSize="16sp"
-        android:translationY="-6dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.088"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.838"
+        app:layout_constraintVertical_bias="0.65"
         app:layout_constraintWidth_percent="0.7475728155"
-        tools:visibility="invisible" />
+        tools:text="(2.427893 HUSH pending)\nadsf\nasdfasf\nasdfasdf\nadsfas\nasdf\nasdfas\nasdfas \nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas\nasdfas" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

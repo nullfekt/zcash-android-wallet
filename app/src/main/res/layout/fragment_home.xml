@@ -68,19 +68,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/text_balance_available" />
 
-    <ImageView
-        android:id="@+id/image_transparent_available"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:src="@drawable/ic_shield"
-        android:padding="1dp"
-        app:layout_constraintBottom_toBottomOf="@id/label_balance"
-        app:layout_constraintDimensionRatio="W,1:1"
-        app:layout_constraintStart_toEndOf="@id/label_balance"
-        app:layout_constraintTop_toTopOf="@id/label_balance"
-        app:tint="@color/zcashBlueDark" />
-
     <TextView
         android:id="@+id/text_balance_description"
         android:layout_width="wrap_content"
@@ -264,6 +251,7 @@
         app:layout_constraintTop_toBottomOf="@id/button_number_pad_9"
         app:layout_constraintWidth_percent="@dimen/calculator_button_width_percent" />
 
+    <!--
     <View
         android:id="@+id/layer_lock"
         android:layout_width="match_parent"
@@ -273,6 +261,7 @@
         tools:visibility="gone"
         android:elevation="5dp"
         android:focusable="true" />
+    -->
 
     <!--             -->
     <!-- Upper Layer -->
@@ -409,7 +398,7 @@
         android:layout_height="0dp"
         android:gravity="center"
         android:includeFontPadding="false"
-        tools:text="$0"
+        tools:text="0.00000000"
         android:textAppearance="@style/Zcash.TextAppearance.Zec"
         android:textSize="72sp"
         android:maxLines="1"

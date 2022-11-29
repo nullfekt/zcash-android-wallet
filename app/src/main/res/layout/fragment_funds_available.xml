@@ -71,7 +71,7 @@
         android:elevation="8dp"
         android:textSize="20dp"
         android:gravity="center"
-        android:text="You've received more than\n1 ZEC in transparent funds.\n\nThis won't take but a moment."
+        android:text="You should never receive HUSH in a transparent address."
         app:layout_constraintVertical_bias="0.24"
         app:layout_constraintTop_toBottomOf="@id/text_title"
         app:layout_constraintBottom_toBottomOf="@id/card_background"

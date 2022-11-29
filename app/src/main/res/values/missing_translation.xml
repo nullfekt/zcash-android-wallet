@@ -38,8 +38,8 @@
     <string name="missing_home_dialog_no_balance_message">To make full use of this wallet, deposit funds to your address.</string>
     <string name="missing_home_instruction_fund_now">Fund Now</string>
 
-    <string name="missing_autoshielding_title_text">We now <b>shield by default</b>. This is to ensure maximum privacy.</string>
-    <string name="missing_autoshielding_body_text"><b>Autoshielding</b> means any funds coming into your transparent address will automatically be moved to your shielded wallet.\n\nWe’ll always update you on the latest privacy-preserving best practices and recommendations.</string>
+    <string name="missing_autoshielding_title_text">HUSH enforces <b>private z-z transactions</b> at the protocol level to ensure maximum privacy.</string>
+    <string name="missing_autoshielding_body_text">All of the transactions you send and receive are completely private.</string>
     <string name="missing_autoshielding_button_positive">Great!</string>
     <string name="missing_autoshielding_button_neutral">Tell me more</string>
 
@@ -73,7 +73,7 @@
     <string name="missing_send_final_error_encoding">The transaction could not be encoded.</string>
     <string name="missing_send_final_error_submitting">Unable to submit transaction to the network.</string>
     <string name="missing_send_fund_source_highlight">shielded</string>
-    <string name="missing_send_hint_input_zcash_address">Enter a shielded Zcash address</string>
+    <string name="missing_send_hint_input_zcash_address">Enter a Hush address</string>
     <string name="missing_send_history_last_and_clipboard">"Last Used and On Clipboard"</string>
     <string name="missing_send_memo_excluded_message">Your transaction is shielded and your address is not available to the recipient</string>
     <string name="missing_send_memo_hint">Memo</string>
@@ -130,7 +130,7 @@
     <!-- Content Descriptions -->
     <!--                      -->
 
-    <string name="missing_content_description_backup_zcash_logo">Zcash Logo</string>
+    <string name="missing_content_description_backup_zcash_logo">Hush Logo</string>
     <string name="missing_content_description_history_back">back</string>
     <string name="missing_content_description_history_copy">copy</string>
     <string name="missing_content_description_home_icon_profile">Profile</string>
@@ -138,7 +138,7 @@
     <string name="missing_content_description_profile_back">back</string>
     <string name="missing_content_description_profile_copy">copy</string>
     <string name="missing_content_description_profile_settings">settings</string>
-    <string name="missing_content_description_profile_zebra">zebra</string>
+    <string name="missing_content_description_profile_zebra">Hush</string>
     <string name="missing_content_description_receive_qr_background">QR background</string>
     <string name="missing_content_description_receive_qr_code">QR code</string>
     <string name="missing_content_description_receive_qr_logo">QR logo</string>

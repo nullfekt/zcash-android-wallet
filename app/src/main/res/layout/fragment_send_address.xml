@@ -57,7 +57,7 @@
         android:theme="@style/Zcash.Overlay.TextInputLayout"
         app:endIconDrawable="@drawable/ic_qrcode_24dp"
         app:endIconMode="custom"
-        app:helperText="Enter a valid Zcash address"
+        app:helperText="Enter a valid Hush address"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_banner_message"
@@ -88,7 +88,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_layout_address"
         app:layout_constraintWidth_percent="0.84"
-        tools:helperText="You have 23.23 ZEC available">
+        tools:helperText="You have 23.23 Hush available">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/input_zcash_amount"

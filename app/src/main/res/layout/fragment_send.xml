@@ -49,10 +49,10 @@
         android:gravity="bottom|center_horizontal"
         android:includeFontPadding="false"
         android:maxLines="1"
-        android:paddingBottom="0dp"
-        android:paddingEnd="16dp"
         android:paddingStart="16dp"
         android:paddingTop="0dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="0dp"
         android:textAppearance="@style/Zcash.TextAppearance.Zec"
         android:textSize="200sp"
         app:autoSizeMaxTextSize="40sp"
@@ -63,7 +63,7 @@
         app:layout_constraintStart_toEndOf="@id/spacer_title"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="$20.1" />
+        tools:text="20.10000000" />
 
     <TextView
         android:id="@+id/text_banner_message_start"
@@ -197,7 +197,7 @@
                 android:theme="@style/Zcash.Overlay.TextInputLayout"
                 app:endIconDrawable="@drawable/ic_qr_scan"
                 app:endIconMode="custom"
-                app:helperText="Enter a valid Zcash address"
+                app:helperText="Enter a valid Hush address"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
